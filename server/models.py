@@ -13,6 +13,17 @@ class User(db.Model):
     password = db.Column(db.String(120))
     profile_pic = db.Column(db.String(120))
 
+    def __repr__(self):
+         return f'<User {self.username}>'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'profile_pic': self.profile_pic
+        }
+
 
 class PlannedTrip(db.Model):
     __tablename__ = 'planned_trips'
