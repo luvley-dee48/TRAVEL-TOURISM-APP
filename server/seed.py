@@ -1,9 +1,13 @@
 from app import app
-from models import db, User
+from models import db, User, PlannedTrip
+from datetime import datetime
 
 with app.app_context():
+    db.create_all()
+
 
     User.query.delete()
+    PlannedTrip.query.delete()
 
 
     users = []
@@ -28,4 +32,17 @@ with app.app_context():
     db.session.add_all(users)
     db.session.commit()
 
+    trips = []
 
+    trips.append(PlannedTrip(user_id=1, name="Trip to Nairobi", description="Exploring Nairobi city", start_date=datetime(2024, 8, 1), end_date=datetime(2024, 8, 5), destination=1))
+    trips.append(PlannedTrip(user_id=2, name="Safari in Maasai Mara", description="Wildlife safari in Maasai Mara", start_date=datetime(2024, 9, 1), end_date=datetime(2024, 9, 7), destination=2))
+    trips.append(PlannedTrip(user_id=4, name="Burj Khalifa", description="Is a skyscrapper in Dubai, the world's largest structure.", start_date=datetime(2024, 10, 1), end_date=datetime(2024, 10, 14), destination=3))
+    trips.append(PlannedTrip(user_id=5, name="Victoria Falls", description="It is the largest waterfall in the World.", start_date=datetime(2024, 8, 5), end_date=datetime(2024, 8, 20), destination=4))
+    trips.append(PlannedTrip(user_id=3, name="Mount Everest", description="The earth highest mountain in the sea level.", start_date=datetime(2024, 6, 11), end_date=datetime(2024, 6, 12), destination=5))
+    trips.append(PlannedTrip(user_id=7, name="Niagara Falls", description="It has the world's highest flow rate.", start_date=datetime(2024, 7, 20), end_date=datetime(2024, 7, 30), destination=6))
+    trips.append(PlannedTrip(user_id=6, name="Great wall of China", description="The largest man-made landmark on Earth.", start_date=datetime(2024, 3, 1), end_date=datetime(2024, 3, 7), destination=7))
+    trips.append(PlannedTrip(user_id=8, name="Pyramids of Egypt", description="Royal tombs.", start_date=datetime(2024, 9, 1), end_date=datetime(2024, 9, 7), destination=9))
+    trips.append(PlannedTrip(user_id=10, name="Haller Park", description="Wildlife safari.", start_date=datetime(2024, 4, 1), end_date=datetime(2024, 4, 7), destination=10))
+
+    db.session.add_all(trips)
+    db.session.commit()
