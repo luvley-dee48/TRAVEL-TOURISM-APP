@@ -1,48 +1,66 @@
 from app import app
-from models import db, User, PlannedTrip
+from models import db, User, PlannedTrip, Destination
 from datetime import datetime
 
 with app.app_context():
     db.create_all()
 
-
+    # Clear existing data (if any)
     User.query.delete()
     PlannedTrip.query.delete()
+    Destination.query.delete()
 
+    # Create Destinations
+    destinations = [
+        Destination(name="Nairobi", description="City in Kenya", location="Kenya", image_url="https://example.com/nairobi.jpg"),
+        Destination(name="Maasai Mara", description="Wildlife reserve", location="Kenya", image_url="https://example.com/maasai_mara.jpg"),
+        Destination(name="Burj Khalifa", description="Tallest building", location="Dubai", image_url="https://example.com/burj_khalifa.jpg"),
+        Destination(name="Victoria Falls", description="Waterfall", location="Zimbabwe", image_url="https://example.com/victoria_falls.jpg"),
+        Destination(name="Mount Everest", description="Highest mountain", location="Nepal", image_url="https://example.com/mount_everest.jpg"),
+        Destination(name="Niagara Falls", description="Waterfall", location="USA", image_url="https://example.com/niagara_falls.jpg"),
+        Destination(name="Great Wall of China", description="Ancient wall", location="China", image_url="https://example.com/great_wall.jpg"),
+        Destination(name="Pyramids of Egypt", description="Ancient pyramids", location="Egypt", image_url="https://example.com/pyramids.jpg"),
+        Destination(name="Haller Park", description="Wildlife sanctuary", location="Kenya", image_url="https://example.com/haller_park.jpg")
+    ]
 
-    users = []
+    db.session.add_all(destinations)
+    db.session.commit()
 
-    users.append(User(username="Joanna Neema", email="joannaneeema72@gmail.com", password="hepsibah21", profile_pic="https://i.pinimg.com/564x/34/46/41/3446414231da15c7688264495433ecd4.jpg"))
-    users.append(User(username="Misalibok", email="misalibokula@gmail.com", password="jesusgirl4ever",profile_pic="https://i.pinimg.com/236x/18/fb/74/18fb747ab9b0259c8c658e96635be890.jpg" ))
-    users.append(User(username="Harry Johson", email="harryjohnson@gmail.com", password="land4cruiser",profile_pic="https://www.pinterest.com/pin/866872628264236046/" ))
-    users.append(User(username="Christian", email="christeen@gmail.com", password="christeenloves",profile_pic="https://i.pinimg.com/236x/c3/80/80/c380803d9b4d580439b0050c303db3f2.jpg" ))
-    users.append(User(username="Gloria Clinton", email="gloriatibu@gmail.com", password="tibuhealth",profile_pic="https://i.pinimg.com/236x/dd/43/c3/dd43c32b27f13043a611a65c73e11302.jpg" ))
-    users.append(User(username="Ian Jules", email="iandrummer.com", password="ruachsouth",profile_pic="https://i.pinimg.com/564x/77/25/f4/7725f4cb560bf3ba9d75846b03fc88a6.jpg" ))
-    users.append(User(username="Shaky Naserian", email="naserianshaky@gmail.com", password="1234f",profile_pic="https://i.pinimg.com/474x/f2/ac/05/f2ac0517f7cf780a1b1b3d69e8ad34f4.jpg" ))
-    users.append(User(username="Daikel Cavin", email="daikelbro@gmail.com", password="room88",profile_pic="https://i.pinimg.com/474x/70/70/7e/70707e7e89ff379c4ffc675311b2a239.jpg" ))
-    users.append(User(username="Andy Elie", email="aelie45@gmail.com", password="lyon",profile_pic="https://i.pinimg.com/236x/bb/54/be/bb54be9dc21aa1d9b28fbd805e450272.jpg" ))
-    users.append(User(username="Andrianna Malone ", email="maloneandria@gmail.com", password="maaylone",profile_pic="https://i.pinimg.com/474x/fe/8f/8a/fe8f8a9b1aa2dad21d5f4ec99b76c24a.jpg" ))
-    users.append(User(username="Melissa Sabia", email="melisasabia@gmail.com", password="fortunegrace",profile_pic="https://i.pinimg.com/236x/0e/f3/29/0ef329911e4ec275dcf5b19244aa2200.jpg" ))
-    users.append(User(username="Tiona Moorehead", email="tmorehead@gmail.com", password="heat",profile_pic="https://i.pinimg.com/236x/f3/00/dd/f300ddeeef07506790ad9d8ab21a6be5.jpg" ))
-    users.append(User(username="Natalie Morgan", email="nmorgan1@gmail.com", password="lyanne",profile_pic="https://i.pinimg.com/236x/19/fa/35/19fa35e819bef5f8641b69fbae0ebab8.jpg" ))
-    users.append(User(username="Tiona Moorehead", email="tmorehead@gmail.com", password="heat",profile_pic="https://i.pinimg.com/236x/f3/00/dd/f300ddeeef07506790ad9d8ab21a6be5.jpg" ))
-    users.append(User(username="Jeremiah Parker", email="jeremiahparker656@gmail.com", password="jemmy23",profile_pic="https://i.pinimg.com/236x/f6/96/76/f6967658a300429c6cce91d1aaf32540.jpg" ))
-  
+    # Create Users
+    users = [
+        User(username="Joanna Neema", email="joannaneeema72@gmail.com", password="hepsibah21", profile_pic="https://i.pinimg.com/564x/34/46/41/3446414231da15c7688264495433ecd4.jpg"),
+        User(username="Misalibok", email="misalibokula@gmail.com", password="jesusgirl4ever", profile_pic="https://i.pinimg.com/236x/18/fb/74/18fb747ab9b0259c8c658e96635be890.jpg"),
+        User(username="Harry Johnson", email="harryjohnson@gmail.com", password="land4cruiser", profile_pic="https://www.pinterest.com/pin/866872628264236046/"),
+        User(username="Christian", email="christeen@gmail.com", password="christeenloves", profile_pic="https://i.pinimg.com/236x/c3/80/80/c380803d9b4d580439b0050c303db3f2.jpg"),
+        User(username="Gloria Clinton", email="gloriatibu@gmail.com", password="tibuhealth", profile_pic="https://i.pinimg.com/236x/dd/43/c3/dd43c32b27f13043a611a65c73e11302.jpg"),
+        User(username="Ian Jules", email="iandrummer.com", password="ruachsouth", profile_pic="https://i.pinimg.com/564x/77/25/f4/7725f4cb560bf3ba9d75846b03fc88a6.jpg"),
+        User(username="Shaky Naserian", email="naserianshaky@gmail.com", password="1234f", profile_pic="https://i.pinimg.com/474x/f2/ac/05/f2ac0517f7cf780a1b1b3d69e8ad34f4.jpg"),
+        User(username="Daikel Cavin", email="daikelbro@gmail.com", password="room88", profile_pic="https://i.pinimg.com/474x/70/70/7e/70707e7e89ff379c4ffc675311b2a239.jpg"),
+        User(username="Andy Elie", email="aelie45@gmail.com", password="lyon", profile_pic="https://i.pinimg.com/236x/bb/54/be/bb54be9dc21aa1d9b28fbd805e450272.jpg"),
+        User(username="Andrianna Malone", email="maloneandria@gmail.com", password="maaylone", profile_pic="https://i.pinimg.com/474x/fe/8f/8a/fe8f8a9b1aa2dad21d5f4ec99b76c24a.jpg"),
+        User(username="Melissa Sabia", email="melisasabia@gmail.com", password="fortunegrace", profile_pic="https://i.pinimg.com/236x/0e/f3/29/0ef329911e4ec275dcf5b19244aa2200.jpg"),
+        User(username="Tiona Moorehead", email="tmorehead@gmail.com", password="heat", profile_pic="https://i.pinimg.com/236x/f3/00/dd/f300ddeeef07506790ad9d8ab21a6be5.jpg"),
+        User(username="Natalie Morgan", email="nmorgan1@gmail.com", password="lyanne", profile_pic="https://i.pinimg.com/236x/19/fa/35/19fa35e819bef5f8641b69fbae0ebab8.jpg"),
+        User(username="Jeremiah Parker", email="jeremiahparker656@gmail.com", password="jemmy23", profile_pic="https://i.pinimg.com/236x/f6/96/76/f6967658a300429c6cce91d1aaf32540.jpg")
+    ]
 
     db.session.add_all(users)
     db.session.commit()
 
-    trips = []
-
-    trips.append(PlannedTrip(user_id=1, name="Trip to Nairobi", description="Exploring Nairobi city", start_date=datetime(2024, 8, 1), end_date=datetime(2024, 8, 5), destination=1))
-    trips.append(PlannedTrip(user_id=2, name="Safari in Maasai Mara", description="Wildlife safari in Maasai Mara", start_date=datetime(2024, 9, 1), end_date=datetime(2024, 9, 7), destination=2))
-    trips.append(PlannedTrip(user_id=4, name="Burj Khalifa", description="Is a skyscrapper in Dubai, the world's largest structure.", start_date=datetime(2024, 10, 1), end_date=datetime(2024, 10, 14), destination=3))
-    trips.append(PlannedTrip(user_id=5, name="Victoria Falls", description="It is the largest waterfall in the World.", start_date=datetime(2024, 8, 5), end_date=datetime(2024, 8, 20), destination=4))
-    trips.append(PlannedTrip(user_id=3, name="Mount Everest", description="The earth highest mountain in the sea level.", start_date=datetime(2024, 6, 11), end_date=datetime(2024, 6, 12), destination=5))
-    trips.append(PlannedTrip(user_id=7, name="Niagara Falls", description="It has the world's highest flow rate.", start_date=datetime(2024, 7, 20), end_date=datetime(2024, 7, 30), destination=6))
-    trips.append(PlannedTrip(user_id=6, name="Great wall of China", description="The largest man-made landmark on Earth.", start_date=datetime(2024, 3, 1), end_date=datetime(2024, 3, 7), destination=7))
-    trips.append(PlannedTrip(user_id=8, name="Pyramids of Egypt", description="Royal tombs.", start_date=datetime(2024, 9, 1), end_date=datetime(2024, 9, 7), destination=9))
-    trips.append(PlannedTrip(user_id=10, name="Haller Park", description="Wildlife safari.", start_date=datetime(2024, 4, 1), end_date=datetime(2024, 4, 7), destination=10))
+    # Create Planned Trips
+    trips = [
+        PlannedTrip(user_id=1, name="Trip to Nairobi", description="Exploring Nairobi city", start_date=datetime(2024, 8, 1), end_date=datetime(2024, 8, 5), destination=destinations[0]),
+        PlannedTrip(user_id=2, name="Safari in Maasai Mara", description="Wildlife safari in Maasai Mara", start_date=datetime(2024, 9, 1), end_date=datetime(2024, 9, 7), destination=destinations[1]),
+        PlannedTrip(user_id=4, name="Burj Khalifa", description="Is a skyscrapper in Dubai, the world's largest structure.", start_date=datetime(2024, 10, 1), end_date=datetime(2024, 10, 14), destination=destinations[2]),
+        PlannedTrip(user_id=5, name="Victoria Falls", description="It is the largest waterfall in the World.", start_date=datetime(2024, 8, 5), end_date=datetime(2024, 8, 20), destination=destinations[3]),
+        PlannedTrip(user_id=3, name="Mount Everest", description="The earth highest mountain in the sea level.", start_date=datetime(2024, 6, 11), end_date=datetime(2024, 6, 12), destination=destinations[4]),
+        PlannedTrip(user_id=7, name="Niagara Falls", description="It has the world's highest flow rate.", start_date=datetime(2024, 7, 20), end_date=datetime(2024, 7, 30), destination=destinations[5]),
+        PlannedTrip(user_id=6, name="Great wall of China", description="The largest man-made landmark on Earth.", start_date=datetime(2024, 3, 1), end_date=datetime(2024, 3, 7), destination=destinations[6]),
+        PlannedTrip(user_id=8, name="Pyramids of Egypt", description="Royal tombs.", start_date=datetime(2024, 9, 1), end_date=datetime(2024, 9, 7), destination=destinations[7]),
+        PlannedTrip(user_id=10, name="Haller Park", description="Wildlife safari.", start_date=datetime(2024, 4, 1), end_date=datetime(2024, 4, 7), destination=destinations[8])
+    ]
 
     db.session.add_all(trips)
     db.session.commit()
+
+   
