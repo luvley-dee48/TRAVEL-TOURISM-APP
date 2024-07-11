@@ -1,4 +1,4 @@
-from flask import Flask, make_response, jsonify
+from flask import Flask, make_response, jsonify, request
 from flask_migrate  import Migrate
 
 from models import db, User
@@ -19,33 +19,50 @@ def index():
 @app.route("/all_users")
 def get_all_users():
     users = User.query.all()
-    users_list= []
-
-    for user in users:
-        user_dict = {
+    users_list= [
+        {
             'id': user.id,
             'username': user.username,
             'email': user.email,
             'profile_pic': user.profile_pic
+        }for user in users
+    ]
+    return make_response(jsonify(users_list), 200)
+
+
+@app.route("/users", methods=["GET","POST"])
+def users():
+    if request.method == "GET":
+        users = [
+            {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'profile_pic': user.profile_pic
+            }for user in User.query.all()
+        ]
+        return make_response(jsonify(users), 200)
+            
+
+    elif request.method == 'POST':
+        new_user = User(
+            username=request.form.get("username"),
+            email=request.form.get("email"),
+            profile_pic=request.form.get("profile_pic")
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        user_dict = {
+            'id': new_user.id,
+            'username': new_user.username,
+            'email': new_user.email,
+            'profile_pic': new_user.profile_pic
         }
-        users_list.append(user_dict)
-        
-    response= make_response(users_list, 200)
-    return response
 
-@app.route("/users")
-def get_first_user():
-    user = User.query.first()
-    user_dict = {
-        'id': user.id,
-        'username': user.username,
-        'email': user.email,
-        'profile_pic': user.profile_pic
-    }
-
-    response = make_response(user_dict, 200)
-
-    return response
+        return make_response(jsonify(user_dict), 201)
+    
 
 @app.route("/users/<int:id>")
 def user_by_id(id):
@@ -66,7 +83,22 @@ def user_by_id(id):
         }
         status = 404
 
-    return make_response(body, status)
+    return make_response(jsonify(body), status)
+
+@app.route("/first_user")
+def get_first_user():
+    user = User.query.first()
+    user_dict = {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'profile_pic': user.profile_pic
+    }
+
+    response = make_response(jsonify(user_dict), 200)
+
+    return response
+
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
