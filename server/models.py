@@ -65,3 +65,5 @@ class TripsUsers(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
 
     # trip = db.relationship('PlannedTrip', backref=db.backref('trip_users', cascade='all, delete-orphan'))
+
+    
