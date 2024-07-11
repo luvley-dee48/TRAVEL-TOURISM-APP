@@ -100,5 +100,55 @@ def get_first_user():
     return response
 
 
+@app.route("/users/<int:id>", methods=["GET", "PATCH", "DELETE"])
+def get_user_by_id(id):
+    user = User.query.filter_by(id=id).first()
+
+    if user is None:
+        body = {
+            "message": f"User id:{id} not found."
+        }
+        status = 404
+    else:
+        if request.method == "GET":
+            user_dict = {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'profile_pic': user.profile_pic
+            }
+            status = 200
+
+        elif request.method == "PATCH":
+            data = request.get_json()
+            if data:
+                if 'username' in data:
+                    user.username = data['username']
+                if 'email' in data:
+                    user.email = data['email']
+                if 'profile_pic' in data:
+                    user.profile_pic = data['profile_pic']
+                db.session.commit()
+                user_dict = {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'profile_pic': user.profile_pic
+                }
+                status = 200
+            else:
+                user_dict = {
+                    "message": "Invalid data provided."
+                }
+                status = 400
+
+        elif request.method == "DELETE":
+            db.session.delete(user)
+            db.session.commit()
+            user_dict = {}
+            status = 204
+
+    return make_response(jsonify(user_dict), status)
+        
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
