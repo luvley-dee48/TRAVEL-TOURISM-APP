@@ -1,6 +1,6 @@
 from app import app
-from models import db, User, PlannedTrip, Destination
-from datetime import datetime
+from models import db, User, PlannedTrip, Destination, Review
+from datetime import datetime, timezone
 
 with app.app_context():
     db.create_all()
@@ -12,15 +12,15 @@ with app.app_context():
 
     # Create Destinations
     destinations = [
-        Destination(name="Nairobi", description="City in Kenya", location="Kenya", image_url="https://example.com/nairobi.jpg"),
-        Destination(name="Maasai Mara", description="Wildlife reserve", location="Kenya", image_url="https://example.com/maasai_mara.jpg"),
-        Destination(name="Burj Khalifa", description="Tallest building", location="Dubai", image_url="https://example.com/burj_khalifa.jpg"),
-        Destination(name="Victoria Falls", description="Waterfall", location="Zimbabwe", image_url="https://example.com/victoria_falls.jpg"),
-        Destination(name="Mount Everest", description="Highest mountain", location="Nepal", image_url="https://example.com/mount_everest.jpg"),
-        Destination(name="Niagara Falls", description="Waterfall", location="USA", image_url="https://example.com/niagara_falls.jpg"),
-        Destination(name="Great Wall of China", description="Ancient wall", location="China", image_url="https://example.com/great_wall.jpg"),
-        Destination(name="Pyramids of Egypt", description="Ancient pyramids", location="Egypt", image_url="https://example.com/pyramids.jpg"),
-        Destination(name="Haller Park", description="Wildlife sanctuary", location="Kenya", image_url="https://example.com/haller_park.jpg")
+        Destination(name="Nairobi", description="City in Kenya", location="Kenya", image_url="https://images.pexels.com/photos/26898331/pexels-photo-26898331/free-photo-of-aerial-view-of-nairobi-expressway-and-modern-skyline.jpeg"),
+        Destination(name="Maasai Mara", description="Wildlife reserve", location="Kenya", image_url="https://images.pexels.com/photos/6401317/pexels-photo-6401317.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"),
+        Destination(name="Burj Khalifa", description="Tallest building", location="Dubai", image_url="https://images.pexels.com/photos/1707310/pexels-photo-1707310.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"),
+        Destination(name="Victoria Falls", description="Waterfall", location="Zimbabwe", image_url="https://cdn.kimkim.com/files/a/content_articles/featured_photos/349c7706fc802f6e8983366c313668461562c766/big-81d49a95306b86dc9ac17b9e146a6b0f.jpg"),
+        Destination(name="Mount Everest", description="Highest mountain", location="Nepal", image_url="https://images.pexels.com/photos/753772/pexels-photo-753772.jpeg?auto=compress&cs=tinysrgb&w=600"),
+        Destination(name="Niagara Falls", description="Waterfall", location="USA", image_url="https://images.pexels.com/photos/753772/pexels-photo-753772.jpeg?auto=compress&cs=tinysrgb&w=600"),
+        Destination(name="Great Wall of China", description="Ancient wall", location="China", image_url="https://images.pexels.com/photos/10952316/pexels-photo-10952316.jpeg?auto=compress&cs=tinysrgb&w=600"),
+        Destination(name="Pyramids of Egypt", description="Ancient pyramids", location="Egypt", image_url="https://images.pexels.com/photos/10952316/pexels-photo-10952316.jpeg?auto=compress&cs=tinysrgb&w=600"),
+        Destination(name="Haller Park", description="Wildlife sanctuary", location="Kenya", image_url="https://images.pexels.com/photos/3992511/pexels-photo-3992511.jpeg?auto=compress&cs=tinysrgb&w=600")
     ]
 
     db.session.add_all(destinations)
@@ -62,5 +62,18 @@ with app.app_context():
 
     db.session.add_all(trips)
     db.session.commit()
+    reviews = [
+        Review(rating=5, comments="Amazing experience in Nairobi!", date_posted=datetime(2024, 8, 6, tzinfo=timezone.utc), user_id=1, destination_id=1),
+        Review(rating=4, comments="Maasai Mara was a great adventure.", date_posted=datetime(2024, 9, 8, tzinfo=timezone.utc), user_id=2, destination_id=2),
+        Review(rating=5, comments="Burj Khalifa is breathtaking!", date_posted=datetime(2024, 10, 15, tzinfo=timezone.utc), user_id=4, destination_id=3),
+        Review(rating=4, comments="Victoria Falls is magnificent.", date_posted=datetime(2024, 8, 21, tzinfo=timezone.utc), user_id=5, destination_id=4),
+        Review(rating=3, comments="Mount Everest trip was challenging but rewarding.", date_posted=datetime(2024, 6, 13, tzinfo=timezone.utc), user_id=3, destination_id=5),
+        Review(rating=5, comments="Niagara Falls is a must-see!", date_posted=datetime(2024, 7, 31, tzinfo=timezone.utc), user_id=7, destination_id=6),
+        Review(rating=4, comments="Great Wall of China is a historical marvel.", date_posted=datetime(2024, 3, 8, tzinfo=timezone.utc), user_id=6, destination_id=7),
+        Review(rating=5, comments="Pyramids of Egypt are awe-inspiring.", date_posted=datetime(2024, 9, 8, tzinfo=timezone.utc), user_id=8, destination_id=8),
+        Review(rating=4, comments="Haller Park is a wonderful place to visit.", date_posted=datetime(2024, 12, 6, tzinfo=timezone.utc), user_id=10, destination_id=9)
+    ]
 
+    db.session.add_all(reviews)
+    db.session.commit()
    
