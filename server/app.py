@@ -1,7 +1,7 @@
 from flask import Flask, make_response, jsonify, request
 from flask_migrate  import Migrate
-
-from models import db, User, PlannedTrip, Destination
+from datetime import datetime, timezone
+from models import db, User, PlannedTrip, Destination, Review, TripsUsers
 
 app = Flask(__name__)
 
@@ -183,7 +183,7 @@ def planned_trips():
     elif request.method == 'POST':
         data = request.get_json()
 
-        # Convert date strings to datetime.date objects
+        #  will help me Convert date strings to datetime.date objects
         start_date = datetime.strptime(data.get("start_date"), "%Y-%m-%d").date()
         end_date = datetime.strptime(data.get("end_date"), "%Y-%m-%d").date()
 
@@ -343,6 +343,169 @@ def get_destination_by_id(id):
             status = 204
     return make_response(jsonify(destination_dict), status)
 
+
+@app.route("/reviews", methods=["GET", "POST"])
+def reviews():
+    if request.method == "GET":
+        reviews = Review.query.all()
+        reviews_list = [
+            {
+                'id': review.id,
+                'rating': review.rating,
+                'comments': review.comments,
+                'date_posted': review.date_posted,
+                'user_id': review.user_id,
+                'destination_id': review.destination_id
+            } for review in reviews
+        ]
+        return jsonify(reviews_list), 200
+
+    elif request.method == "POST":
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        rating = data.get("rating")
+        comments = data.get("comments")
+        user_id = data.get("user_id")
+        destination_id = data.get("destination_id")
+
+        if not rating or not user_id or not destination_id:
+            return jsonify({"error": "Missing rating, user_id, or destination_id"}), 400
+
+        new_review = Review(
+            rating=rating,
+            comments=comments,
+            user_id=user_id,
+            destination_id=destination_id,
+            date_posted=datetime.now(timezone.utc)
+        )
+
+        db.session.add(new_review)
+        db.session.commit()
+        review_dict = {
+            'id': new_review.id,
+            'rating': new_review.rating,
+            'comments': new_review.comments,
+            'date_posted': new_review.date_posted,
+            'user_id': new_review.user_id,
+            'destination_id': new_review.destination_id
+        }
+        return jsonify(review_dict), 201
+
+@app.route("/reviews/<int:id>", methods=["GET", "PATCH", "DELETE"])
+def review_by_id(id):
+    review = Review.query.filter_by(id=id).first()
+    if review is None:
+        return jsonify({"message": f"Review id:{id} not found."}), 404
+
+    if request.method == "GET":
+        review_dict = {
+            'id': review.id,
+            'rating': review.rating,
+            'comments': review.comments,
+            'date_posted': review.date_posted,
+            'user_id': review.user_id,
+            'destination_id': review.destination_id
+        }
+        return jsonify(review_dict), 200
+
+    elif request.method == "PATCH":
+        data = request.get_json()
+        if data:
+            if 'rating' in data:
+                review.rating = data['rating']
+            if 'comments' in data:
+                review.comments = data['comments']
+            if 'user_id' in data:
+                review.user_id = data['user_id']
+            if 'destination_id' in data:
+                review.destination_id = data['destination_id']
+
+            db.session.commit()
+            review_dict = {
+                'id': review.id,
+                'rating': review.rating,
+                'comments': review.comments,
+                'date_posted': review.date_posted,
+                'user_id': review.user_id,
+                'destination_id': review.destination_id
+            }
+            return jsonify(review_dict), 200
+        else:
+            return jsonify({"message": "Invalid data provided."}), 400
+
+    elif request.method == "DELETE":
+        db.session.delete(review)
+        db.session.commit()
+        return jsonify({}), 204
+
+@app.route("/trips_users", methods=["POST"])
+def create_trip_user():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    user_id = data.get("user_id")
+    trip_id = data.get("trip_id")
+
+    if not user_id or not trip_id:
+        return jsonify({"error": "Missing user_id or trip_id"}), 400
+
+   
+    user = User.query.get(user_id)
+    trip = PlannedTrip.query.get(trip_id)
+
+    if not user:
+        return jsonify({"error": f"User with id {user_id} not found"}), 404
+
+    if not trip:
+        return jsonify({"error": f"PlannedTrip with id {trip_id} not found"}), 404
+
+    # Create the new relationship
+    new_trip_user = TripsUsers(
+        user_id=user_id,
+        trip_id=trip_id
+    )
+
+    db.session.add(new_trip_user)
+    db.session.commit()
+
+    return jsonify({"message": "Trip user relationship created successfully"}), 201
+
+@app.route("/trips_users/<int:user_id>/<int:trip_id>", methods=["DELETE"])
+def delete_trip_user(user_id, trip_id):
+    trip_user = TripsUsers.query.filter_by(user_id=user_id, trip_id=trip_id).first()
+    if not trip_user:
+        return jsonify({"error": "Trip user relationship not found"}), 404
+
+    db.session.delete(trip_user)
+    db.session.commit()
+
+    return jsonify({"message": "Trip user relationship deleted successfully"}), 204
+
+@app.route("/trips_users", methods=["GET"])
+def get_all_trip_users():
+    trip_users = TripsUsers.query.all()
+    trip_users_list = [
+        {
+            'user_id': trip_user.user_id,
+            'trip_id': trip_user.trip_id
+        } for trip_user in trip_users
+    ]
+    return jsonify(trip_users_list), 200
+
+@app.route("/trips_users/<int:user_id>/<int:trip_id>", methods=["GET"])
+def get_trip_user(user_id, trip_id):
+    trip_user = TripsUsers.query.filter_by(user_id=user_id, trip_id=trip_id).first()
+    if not trip_user:
+        return jsonify({"error": "Trip user relationship not found"}), 404
+
+    trip_user_dict = {
+        'user_id': trip_user.user_id,
+        'trip_id': trip_user.trip_id
+    }
+    return jsonify(trip_user_dict), 200
 
 
 if __name__ == "__main__":
