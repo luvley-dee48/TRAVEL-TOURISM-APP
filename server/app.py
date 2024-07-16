@@ -2,12 +2,14 @@ from flask import Flask, make_response, jsonify, request
 from flask_migrate  import Migrate
 from datetime import datetime, timezone
 from models import db, User, PlannedTrip, Destination, Review, TripsUsers
+from flask_cors import CORS
 
 app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///app.db'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+CORS(app)
 migrate = Migrate(app, db)
 
 db.init_app(app)

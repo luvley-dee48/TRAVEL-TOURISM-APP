@@ -36,6 +36,8 @@ class PlannedTrip(db.Model, SerializerMixin):
     destination = db.relationship("Destination", backref="planned_trips", lazy=True)
     trip_users = db.relationship('TripsUsers', backref='planned_trip', lazy=True)
 
+    def __repr__(self):
+        return f'<PlannedTrip {self.name}, User {self.user_id}, Destination {self.destination_id}>'
 
 class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
@@ -47,6 +49,9 @@ class Review(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     destination_id = db.Column(db.Integer, db.ForeignKey('destinations.id'))
 
+    def __repr__(self):
+        return f'<Review Rating {self.rating}, User {self.user_id}, Destination {self.destination_id}>'
+    
 class Destination(db.Model):
     __tablename__ = 'destinations'
     
@@ -57,12 +62,19 @@ class Destination(db.Model):
     image_url = db.Column(db.String(500))
 
     reviews = db.relationship("Review", backref="destination", lazy=True)
-   	
+
+    def __repr__(self):
+        return f'<Destination {self.name}, Location {self.location}>'
+    
+
 class TripsUsers(db.Model, SerializerMixin):
     __tablename__ = 'trips_users'
 
     trip_id = db.Column(db.Integer, db.ForeignKey('planned_trips.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+
+    def __repr__(self):
+        return f'<TripsUsers Trip {self.trip_id}, User {self.user_id}>'
 
     # trip = db.relationship('PlannedTrip', backref=db.backref('trip_users', cascade='all, delete-orphan'))
 
