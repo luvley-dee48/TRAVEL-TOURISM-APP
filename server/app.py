@@ -36,18 +36,38 @@ def get_all_users():
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    new_user = User(
-        username=data['username'],
-        email=data['email'],
-        profile_pic=data.get('profile_pic')  # Optional
-    )
-    new_user.set_password(data['password'])  # Hash the password
     
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({"message": "User created successfully!"}), 201
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
 
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    profile_pic = data.get('profile_pic')  # Optional
 
+    if not username or not email or not password:
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    new_user = User(
+        username=username,
+        email=email,
+        profile_pic=profile_pic
+    )
+    new_user.set_password(password)  # Hash the password
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        user_dict = {
+            'id': new_user.id,
+            'username': new_user.username,
+            'email': new_user.email,
+            'profile_pic': new_user.profile_pic
+        }
+        return jsonify(user_dict), 201  # Return the created user data
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
 
 @app.route("/users", methods=["GET", "POST"])
 def users():
@@ -61,8 +81,8 @@ def users():
                 'profile_pic': user.profile_pic
             } for user in users
         ]
-        return jsonify(users_list), 200
-    
+        return jsonify(users_list), 200 
+            
     elif request.method == 'POST':
         data = request.get_json()
         if not data:
@@ -70,7 +90,7 @@ def users():
         
         username = data.get("username")
         email = data.get("email")
-        profile_pic = data.get("profile_pic", None)
+        profile_pic = data.get("profile_pic")
         
         if not username or not email:
             return jsonify({"error": "Missing username or email"}), 400
@@ -80,7 +100,6 @@ def users():
             email=email,
             profile_pic=profile_pic
         )
-        
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -94,7 +113,6 @@ def users():
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 400
-
 
 @app.route("/users/<int:id>", methods=["GET", "PUT", "PATCH", "DELETE"])
 def get_user_by_id(id):
@@ -525,18 +543,6 @@ def book_trip():
         return jsonify({"message": "Trip booked successfully!"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-    
-    user = User.query.filter_by(email=email).first()
-    if user and user.verify_password(password):
-        return jsonify({'message': 'Login successful!', 'user': {'id': user.id, 'username': user.username}})
-    else:
-        return jsonify({'message': 'Invalid credentials'}), 401
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

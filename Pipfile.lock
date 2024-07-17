@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "54c30c79d2f88b20bed5b0ed1b158317b6ed0c4043641c2f802ea324b8e0d682"
+            "sha256": "2466e64c3f7b6c757ed41be28f71d4ac766ba3e0a3bd3c37b56c7bd47ff68fe6"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.8.13"
+            "python_version": "3.12.3"
         },
         "sources": [
             {
@@ -138,22 +138,6 @@
             ],
             "markers": "python_version < '3.13' and platform_machine == 'aarch64' or (platform_machine == 'ppc64le' or (platform_machine == 'x86_64' or (platform_machine == 'amd64' or (platform_machine == 'AMD64' or (platform_machine == 'win32' or platform_machine == 'WIN32')))))",
             "version": "==3.0.3"
-        },
-        "importlib-metadata": {
-            "hashes": [
-                "sha256:15584cf2b1bf449d98ff8a6ff1abef57bf20f3ac6454f431736cd3e660921b2f",
-                "sha256:188bd24e4c346d3f0a933f275c2fec67050326a856b9a359881d7c2a697e8812"
-            ],
-            "markers": "python_version < '3.10'",
-            "version": "==8.0.0"
-        },
-        "importlib-resources": {
-            "hashes": [
-                "sha256:50d10f043df931902d4194ea07ec57960f66a80449ff867bfe782b4c486ba78c",
-                "sha256:cdb2b453b8046ca4e3798eb1d84f3cce1446a0e8e7b5ef4efb600f19fc398145"
-            ],
-            "markers": "python_version < '3.9'",
-            "version": "==6.4.0"
         },
         "itsdangerous": {
             "hashes": [
@@ -315,14 +299,6 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==3.0.3"
-        },
-        "zipp": {
-            "hashes": [
-                "sha256:bf1dcf6450f873a13e952a29504887c89e6de7506209e5b1bcc3460135d4de19",
-                "sha256:f091755f667055f2d02b32c53771a7a6c8b47e1fdbc4b72a8b9072b3eef8015c"
-            ],
-            "markers": "python_version >= '3.8'",
-            "version": "==3.19.2"
         }
     },
     "develop": {}

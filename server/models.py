@@ -69,7 +69,7 @@ class Review(db.Model, SerializerMixin):
     date_posted = db.Column(db.Date, default=datetime.now(timezone.utc))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     destination_id = db.Column(db.Integer, db.ForeignKey('destinations.id'))
-
+    
     def __repr__(self):
         return f'<Review Rating {self.rating}, User {self.user_id}, Destination {self.destination_id}>'
     

@@ -1,21 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
-import avatarImage2 from "../assets/avatarimage2.jpg"
+import avatarImage2 from "../assets/avatarimage2.jpg";
+
 export default function Reviews() {
+    const [reviews, setReviews] = useState([]);
+
+    useEffect(() => {
+        // Fetch reviews from the backend
+        fetch('http://127.0.0.1:5555/reviews')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setReviews(data);
+            })
+            .catch(error => {
+                console.error("There was an error fetching the reviews!", error);
+            });
+    }, []);
+
     return (
         <StyledSection id="reviews">
             <Title>
                 <h2>Happy Customers</h2>
             </Title>
             <ReviewContainer>
-                {reviews.map((review, index) => (
-                    <Review key={index}>
-                        <p>{review.text}</p>
+                {reviews.map((review) => (
+                    <Review key={review.id}>
+                        <Rating>Rating: {review.rating}</Rating>
+                        <p>{review.comments}</p>
                         <Info>
-                            <img src={avatarImage2} alt={review.name} />
+                            <img src={avatarImage2} alt={review.user_name} />
                             <Details>
-                                <h4>{review.name}</h4>
-                                <span>{review.role}</span>
+                                <h4>{review.user_name}</h4>  {/* Display user name */}
+                                <span>{review.destination_title}</span>  {/* Display destination title */}
                             </Details>
                         </Info>
                     </Review>
@@ -24,13 +45,6 @@ export default function Reviews() {
         </StyledSection>
     );
 }
-
-const reviews = [
-    { text: "Absolutely fantastic experience!Also, a great way to experience the local culture.", name: "James Mbugua", role: "Developer - z-Gen coders" },
-    { text: "Great experience!Can't recommend it enough.", name: "Sheldon Cooper", role: "Tourist" },
-    { text: "An unforgettable experience.Worth every penny.", name: "Deborah Muoti", role: "Developer - z-Gen coders" },
-    { text: "Highly recommend this to anyone visiting the area.", name: "Doc Obura", role: "Developer - z-Gen coders" }
-];
 
 const StyledSection = styled.section`
   margin: 5rem 0;
@@ -43,14 +57,10 @@ const Title = styled.div`
 
 const ReviewContainer = styled.div`
   display: flex;
-  justify-content: center;
-  margin: 0 2rem;
+  flex-direction: column;
+  align-items: center;
   gap: 2rem;
-
-  @media screen and (min-width: 280px) and (max-width: 768px) {
-    flex-direction: column;
-    margin: 0;
-  }
+  margin: 0 2rem;
 `;
 
 const Review = styled.div`
@@ -59,6 +69,8 @@ const Review = styled.div`
   border-radius: 0.5rem;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
   transition: 0.3s ease-in-out;
+  width: 100%;
+  max-width: 600px;
 
   &:hover {
     transform: translateX(0.4rem) translateY(-1rem);
@@ -66,21 +78,20 @@ const Review = styled.div`
   }
 `;
 
+const Rating = styled.div`
+  font-weight: bold;
+  margin-bottom: 1rem;
+`;
+
 const Info = styled.div`
   display: flex;
-  justify-content: center;
-  gap: 1rem;
   align-items: center;
+  gap: 1rem;
   margin-top: 1rem;
 
   img {
     border-radius: 3rem;
     height: 3rem;
-  }
-
-  @media screen and (min-width: 280px) and (max-width: 768px) {
-    flex-direction: column;
-    justify-content: center;
   }
 `;
 
