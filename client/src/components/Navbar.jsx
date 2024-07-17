@@ -35,6 +35,7 @@ export default function Navbar() {
           <li><Link to="/destinations">Destinations</Link></li>
           <li><Link to="/users">Users</Link></li>
           <li><Link to="/trips">Trips</Link></li>
+          <li><Link to="/reviews">Reviews</Link></li>
         </SidebarLinks>
       </Sidebar>
     </>
