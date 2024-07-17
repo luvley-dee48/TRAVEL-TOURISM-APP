@@ -36,19 +36,38 @@ def get_all_users():
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    new_user = User(
-        username=data['username'],
-        email=data['email'],
-        profile_pic=data.get('profile_pic')  # Optional
-    )
-    new_user.set_password(data['password'])  # Hash the password
     
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({"message": "User created successfully!"}), 201
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
 
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    profile_pic = data.get('profile_pic')  # Optional
 
+    if not username or not email or not password:
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    new_user = User(
+        username=username,
+        email=email,
+        profile_pic=profile_pic
+    )
+    new_user.set_password(password)  # Hash the password
 
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        user_dict = {
+            'id': new_user.id,
+            'username': new_user.username,
+            'email': new_user.email,
+            'profile_pic': new_user.profile_pic
+        }
+        return jsonify(user_dict), 201  # Return the created user data
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
 
 @app.route("/users", methods=["GET", "POST"])
 def users():
@@ -62,7 +81,7 @@ def users():
                 'profile_pic': user.profile_pic
             } for user in users
         ]
-        return jsonify([user.to_dict() for user in users]), 200 
+        return jsonify(users_list), 200 
             
     elif request.method == 'POST':
         data = request.get_json()
@@ -344,58 +363,36 @@ def get_destination_by_id(id):
     return make_response(jsonify(destination_dict), status)
 
 
-@app.route("/reviews", methods=["GET", "POST"])
-def reviews():
-    if request.method == "GET":
-        reviews = Review.query.all()
-        reviews_list = [
-            {
-                'id': review.id,
-                'rating': review.rating,
-                'comments': review.comments,
-                'date_posted': review.date_posted,
-                'user_id': review.user_id,
-                'destination_id': review.destination_id
-            } for review in reviews
-        ]
-        return jsonify(reviews_list), 200
+@app.route("/reviews", methods=["POST"])
+def create_review():
+    data = request.get_json()
+    if not data or 'rating' not in data or 'comments' not in data or 'user_id' not in data or 'destination_id' not in data:
+        return jsonify({"message": "Missing required fields."}), 400
 
-    elif request.method == "POST":
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
+    new_review = Review(
+        rating=data['rating'],
+        comments=data['comments'],
+        user_id=data['user_id'],
+        destination_id=data['destination_id']
+    )
+    
+    db.session.add(new_review)
+    db.session.commit()
+    
+    return jsonify({
+        'id': new_review.id,
+        'rating': new_review.rating,
+        'comments': new_review.comments,
+        'date_posted': new_review.date_posted.isoformat(),
+        'user_id': new_review.user_id,
+        'destination_id': new_review.destination_id
+    }), 201
 
-        rating = data.get("rating")
-        comments = data.get("comments")
-        user_id = data.get("user_id")
-        destination_id = data.get("destination_id")
-
-        if not rating or not user_id or not destination_id:
-            return jsonify({"error": "Missing rating, user_id, or destination_id"}), 400
-
-        new_review = Review(
-            rating=rating,
-            comments=comments,
-            user_id=user_id,
-            destination_id=destination_id,
-            date_posted=datetime.now(timezone.utc)
-        )
-
-        db.session.add(new_review)
-        db.session.commit()
-        review_dict = {
-            'id': new_review.id,
-            'rating': new_review.rating,
-            'comments': new_review.comments,
-            'date_posted': new_review.date_posted,
-            'user_id': new_review.user_id,
-            'destination_id': new_review.destination_id
-        }
-        return jsonify(review_dict), 201
 
 @app.route("/reviews/<int:id>", methods=["GET", "PATCH", "DELETE"])
 def review_by_id(id):
     review = Review.query.filter_by(id=id).first()
+    
     if review is None:
         return jsonify({"message": f"Review id:{id} not found."}), 404
 
@@ -404,7 +401,7 @@ def review_by_id(id):
             'id': review.id,
             'rating': review.rating,
             'comments': review.comments,
-            'date_posted': review.date_posted,
+            'date_posted': review.date_posted.isoformat(),
             'user_id': review.user_id,
             'destination_id': review.destination_id
         }
@@ -417,17 +414,12 @@ def review_by_id(id):
                 review.rating = data['rating']
             if 'comments' in data:
                 review.comments = data['comments']
-            if 'user_id' in data:
-                review.user_id = data['user_id']
-            if 'destination_id' in data:
-                review.destination_id = data['destination_id']
-
             db.session.commit()
             review_dict = {
                 'id': review.id,
                 'rating': review.rating,
                 'comments': review.comments,
-                'date_posted': review.date_posted,
+                'date_posted': review.date_posted.isoformat(),
                 'user_id': review.user_id,
                 'destination_id': review.destination_id
             }
