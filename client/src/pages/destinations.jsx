@@ -10,11 +10,16 @@ export default function Destination() {
   });
   const [editDestination, setEditDestination] = useState(null);
   const [formVisible, setFormVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredDestinations, setFilteredDestinations] = useState([]);
 
   useEffect(() => {
     fetch("http://127.0.0.1:5555/destinations")
       .then(res => res.json())
-      .then(data => setDestinations(data))
+      .then(data => {
+        setDestinations(data);
+        setFilteredDestinations(data);
+      })
       .catch(err => console.error(err));
   }, []);
 
@@ -44,6 +49,7 @@ export default function Destination() {
           setDestinations([...destinations, data]);
           setNewDestination({ name: '', description: '', image_url: '' });
           setFormVisible(false);
+          setFilteredDestinations([...destinations, data]); // Update filtered list as well
         })
         .catch(err => console.error(err));
     }
@@ -55,6 +61,7 @@ export default function Destination() {
     })
       .then(() => {
         setDestinations(destinations.filter(destination => destination.id !== id));
+        setFilteredDestinations(filteredDestinations.filter(destination => destination.id !== id)); // Update filtered list as well
       })
       .catch(err => console.error(err));
   };
@@ -72,6 +79,9 @@ export default function Destination() {
         setDestinations(destinations.map(destination =>
           destination.id === id ? data : destination
         ));
+        setFilteredDestinations(filteredDestinations.map(destination =>
+          destination.id === id ? data : destination
+        )); // Update filtered list as well
         setEditDestination(null);
       })
       .catch(err => console.error(err));
@@ -83,10 +93,45 @@ export default function Destination() {
     setFormVisible(true);
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setFilteredDestinations(
+      destinations.filter(destination =>
+        destination.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  };
+
+  const handleShare = (destination) => {
+    if (navigator.share) {
+      navigator.share({
+        title: destination.name,
+        text: destination.description,
+        url: destination.image_url,
+      })
+      .catch((err) => console.error('Error sharing:', err));
+    } else {
+      alert('Web Share API is not supported in your browser.');
+    }
+  };
+
   return (
     <Section>
       <div className="title">
         <h1>Destinations</h1>
+        <SearchForm onSubmit={handleSearchSubmit}>
+          <SearchInput
+            type="text"
+            placeholder="Search Destinations..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+          <SearchButton type="submit">Search</SearchButton>
+        </SearchForm>
         <ToggleButton onClick={() => setFormVisible(prev => !prev)}>
           {formVisible ? "Hide Form" : "Add New Destination"}
         </ToggleButton>
@@ -110,13 +155,14 @@ export default function Destination() {
         </AddDestinationForm>
       )}
       <DestinationsGrid>
-        {destinations.map(destination => (
+        {filteredDestinations.map(destination => (
           <DestinationCard key={destination.id}>
             <img src={destination.image_url} alt={destination.name} />
             <h2>{destination.name}</h2>
             <p>{destination.description}</p>
             <Button onClick={() => handleDelete(destination.id)}>Delete</Button>
             <Button onClick={() => startEditing(destination)}>Edit</Button>
+            <Button onClick={() => handleShare(destination)}>Share</Button>
           </DestinationCard>
         ))}
       </DestinationsGrid>
@@ -144,6 +190,34 @@ const ToggleButton = styled.button`
   cursor: pointer;
   font-size: 1rem;
   margin: 1rem;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
+
+const SearchForm = styled.form`
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+`;
+
+const SearchInput = styled.input`
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+`;
+
+const SearchButton = styled.button`
+  padding: 0.5rem 1rem;
+  margin-left: 0.5rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
 
   &:hover {
     background-color: #0056b3;
