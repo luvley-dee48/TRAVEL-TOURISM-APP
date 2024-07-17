@@ -5,11 +5,9 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { VscChromeClose } from "react-icons/vsc";
 import { Link } from "react-router-dom";
 
-
 export default function Navbar() {
   const [navbarState, setNavbarState] = useState(false);
- 
-
+  const [sidebarState, setSidebarState] = useState(false);
 
   return (
     <>
@@ -26,14 +24,19 @@ export default function Navbar() {
         <NavLinks>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/services">Services</Link></li>
-          <li><Link to="/destinations">Destinations</Link></li>
-          <li><Link to="/reviews">Reviews</Link></li>
-          <li><Link to="/users">Users</Link></li>
-          <li><Link to="/trips">BookTrip</Link></li>
           <li><Link to="/viewtrips">ViewTrips</Link></li>
         </NavLinks>
       </StyledNav>
-
+      <SidebarToggle onClick={() => setSidebarState((prev) => !prev)}>
+        Dashboard
+      </SidebarToggle>
+      <Sidebar state={sidebarState}>
+        <SidebarLinks>
+          <li><Link to="/destinations">Destinations</Link></li>
+          <li><Link to="/users">Users</Link></li>
+          <li><Link to="/trips">Trips</Link></li>
+        </SidebarLinks>
+      </Sidebar>
     </>
   );
 }
@@ -42,6 +45,9 @@ const StyledNav = styled.nav`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
 const Brand = styled.div`
@@ -60,6 +66,8 @@ const LogoContainer = styled.div`
   font-size: 1.2rem;
   font-weight: 900;
   text-transform: uppercase;
+  margin-left: 5.5rem; 
+
 `;
 
 const ToggleIcon = styled.div`
@@ -95,5 +103,57 @@ const NavLinks = styled.ul`
 
   @media screen and (min-width: 280px) and (max-width: 1080px) {
     display: none;
+  }
+`;
+
+const SidebarToggle = styled.button`
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  background-color: #0077b6;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  z-index: 1000;
+
+  &:hover {
+    background-color: #023e8a;
+  }
+`;
+
+const Sidebar = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: ${({ state }) => (state ? '250px' : '0')};
+  background-color: #ffffff;
+  overflow-x: hidden;
+  transition: 0.3s;
+  padding-top: 60px;
+  box-shadow: ${({ state }) => (state ? '2px 0 5px rgba(0, 0, 0, 0.1)' : 'none')};
+  z-index: 999;
+`;
+
+const SidebarLinks = styled.ul`
+  list-style-type: none;
+  padding: 0;
+
+  li {
+    padding: 8px 16px;
+    text-align: left;
+
+    a {
+      text-decoration: none;
+      color: #0077b6;
+      font-size: 1.2rem;
+      display: block;
+      transition: 0.3s;
+
+      &:hover {
+        color: #023e8a;
+      }
+    }
   }
 `;

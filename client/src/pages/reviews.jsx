@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from "styled-components";
-import avatarImage from "../assets/avatarImage1.jpg";
 import avatarImage2 from "../assets/avatarimage2.jpg"
 export default function Reviews() {
     return (
