@@ -99,11 +99,15 @@ export default function Destination() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    setFilteredDestinations(
-      destinations.filter(destination =>
-        destination.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
+    if (searchTerm.trim() === "") {
+      setFilteredDestinations(destinations); // Reset to full list
+    } else {
+      setFilteredDestinations(
+        destinations.filter(destination =>
+          destination.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }
   };
 
   const handleShare = (destination) => {
@@ -117,6 +121,10 @@ export default function Destination() {
     } else {
       alert('Web Share API is not supported in your browser.');
     }
+  };
+
+  const handleReturnToDestinations = () => {
+    setFilteredDestinations(destinations); // Reset filtered destinations to full list
   };
 
   return (
@@ -135,6 +143,7 @@ export default function Destination() {
         <ToggleButton onClick={() => setFormVisible(prev => !prev)}>
           {formVisible ? "Hide Form" : "Add New Destination"}
         </ToggleButton>
+        <ReturnButton onClick={handleReturnToDestinations}>Return to Destinations</ReturnButton>
       </div>
       {formVisible && (
         <AddDestinationForm onSubmit={handleSubmit}>
@@ -154,18 +163,22 @@ export default function Destination() {
           <Button type="submit">{editDestination ? "Update Destination" : "Add Destination"}</Button>
         </AddDestinationForm>
       )}
-      <DestinationsGrid>
-        {filteredDestinations.map(destination => (
-          <DestinationCard key={destination.id}>
-            <img src={destination.image_url} alt={destination.name} />
-            <h2>{destination.name}</h2>
-            <p>{destination.description}</p>
-            <Button onClick={() => handleDelete(destination.id)}>Delete</Button>
-            <Button onClick={() => startEditing(destination)}>Edit</Button>
-            <Button onClick={() => handleShare(destination)}>Share</Button>
-          </DestinationCard>
-        ))}
-      </DestinationsGrid>
+      {filteredDestinations.length > 0 ? (
+        <DestinationsGrid>
+          {filteredDestinations.map(destination => (
+            <DestinationCard key={destination.id}>
+              <img src={destination.image_url} alt={destination.name} />
+              <h2>{destination.name}</h2>
+              <p>{destination.description}</p>
+              <Button onClick={() => handleDelete(destination.id)}>Delete</Button>
+              <Button onClick={() => startEditing(destination)}>Edit</Button>
+              <Button onClick={() => handleShare(destination)}>Share</Button>
+            </DestinationCard>
+          ))}
+        </DestinationsGrid>
+      ) : (
+        <p>No destinations found.</p>
+      )}
     </Section>
   );
 }
@@ -300,5 +313,20 @@ const Button = styled.button`
 
   &:hover {
     background-color: #0056b3;
+  }
+`;
+
+const ReturnButton = styled.button`
+  padding: 0.5rem 1rem;
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin: 1rem;
+
+  &:hover {
+    background-color: #bd2130;
   }
 `;

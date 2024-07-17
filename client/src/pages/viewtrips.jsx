@@ -5,6 +5,7 @@ import homeImage from "../assets/hero.png";
 export default function ViewTrips() {
     const [bookedTrips, setBookedTrips] = useState([]);
     const [destinations, setDestinations] = useState([]);
+    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -16,12 +17,19 @@ export default function ViewTrips() {
                 const tripsData = await tripsResponse.json();
                 setBookedTrips(tripsData);
 
-                const destinationsResponse = await fetch("http://127.0.0.1:5555/destinations");
+                const destinationsResponse = await fetch("http://127.0.0.1:5555/planned_trips");
                 if (!destinationsResponse.ok) {
                     throw new Error("Failed to fetch destinations");
                 }
                 const destinationsData = await destinationsResponse.json();
                 setDestinations(destinationsData);
+
+                const usersResponse = await fetch("http://127.0.0.1:5555/users"); // Adjust endpoint as per your backend
+                if (!usersResponse.ok) {
+                    throw new Error("Failed to fetch users");
+                }
+                const usersData = await usersResponse.json();
+                setUsers(usersData);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -34,15 +42,21 @@ export default function ViewTrips() {
         try {
             const response = await fetch(`http://127.0.0.1:5555/planned_trips/${id}`, {
                 method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             });
 
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Failed to delete trip:", errorText);
                 throw new Error("Failed to delete trip");
             }
 
-            setBookedTrips(bookedTrips.filter(trip => trip.id !== id));
+            setBookedTrips(currentTrips => currentTrips.filter(trip => trip.id !== id));
         } catch (error) {
             console.error("Error deleting trip:", error);
+            alert("Error deleting trip. See console for details.");
         }
     };
 
@@ -51,8 +65,16 @@ export default function ViewTrips() {
     };
 
     const getDestinationName = (id) => {
-        const destination = destinations.find(dest => dest.id === id);
-        return destination ? destination.name : "Unknown Destination";
+        const trip = bookedTrips.find(trip => trip.id === id);
+        if (!trip) return "Unknown Trip";
+
+        const destination = destinations.find(dest => dest.id === trip.destination_id);
+        if (!destination) return "Unknown Destination";
+
+        const user = users.find(user => user.id === trip.user_id);
+        const userName = user ? `${user.first_name} ${user.last_name}` : "Unknown User";
+
+        return `${destination.name} (Booked by ${userName})`;
     };
 
     return (
@@ -69,7 +91,7 @@ export default function ViewTrips() {
                     <TripList>
                         {bookedTrips.map(trip => (
                             <TripItem key={trip.id}>
-                                <p><strong>Destination:</strong> {getDestinationName(trip.destination_id)}</p>
+                                <p><strong>Destination:</strong> {getDestinationName(trip.id)}</p>
                                 <p><strong>Start Date:</strong> {trip.start_date}</p>
                                 <p><strong>End Date:</strong> {trip.end_date}</p>
                                 <Button onClick={() => handleDeleteTrip(trip.id)}>Delete</Button>
