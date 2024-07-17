@@ -1,10 +1,13 @@
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from datetime import datetime, timezone
 from sqlalchemy_serializer import SerializerMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
-
-db = SQLAlchemy(metadata=MetaData())
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///trips.db'  # Update with your database URI
+db = SQLAlchemy(app, metadata=MetaData())
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
@@ -12,15 +15,21 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key= True)
     username = db.Column(db.String(80))
     email = db.Column(db.String(124), nullable=False, unique=True)
-    password = db.Column(db.String(120))
+    password_hash = db.Column(db.String(128), nullable=False)
     profile_pic = db.Column(db.String(120))
 
-    planned_trips= db.relationship("PlannedTrip", backref="user", lazy=True)
-    reviews= db.relationship("Review",backref="user", lazy=True)
+    planned_trips = db.relationship("PlannedTrip", backref="user", lazy=True)
+    reviews = db.relationship("Review", backref="user", lazy=True)
     user_trips = db.relationship('TripsUsers', backref='user', lazy=True)
 
     def __repr__(self):
          return f'<User {self.username}>'
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
     
 class PlannedTrip(db.Model, SerializerMixin):
     __tablename__ = 'planned_trips'
@@ -66,7 +75,6 @@ class Destination(db.Model):
     def __repr__(self):
         return f'<Destination {self.name}, Location {self.location}>'
     
-
 class TripsUsers(db.Model, SerializerMixin):
     __tablename__ = 'trips_users'
 
@@ -75,6 +83,8 @@ class TripsUsers(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<TripsUsers Trip {self.trip_id}, User {self.user_id}>'
+
+
 
     # trip = db.relationship('PlannedTrip', backref=db.backref('trip_users', cascade='all, delete-orphan'))
 

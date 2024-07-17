@@ -13,18 +13,14 @@ const Users = () => {
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    try {
+    const fetchUsers = async () => {
       const response = await fetch('http://127.0.0.1:5555/users');
       const data = await response.json();
       setUsers(data);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  };
+    };
+
+    fetchUsers();
+  }, []);
 
   const addUser = async () => {
     try {
@@ -35,9 +31,7 @@ const Users = () => {
         },
         body: JSON.stringify(newUser),
       });
-      if (!response.ok) {
-        throw new Error('Failed to add user');
-      }
+      if (!response.ok) throw new Error('Failed to add user');
       const data = await response.json();
       setUsers([...users, data]);
       setNewUser({ username: '', email: '', password: '', profile_pic: '' });
@@ -47,17 +41,14 @@ const Users = () => {
   };
 
   const deleteUser = async (id) => {
-    setUsers(users.filter(user => user.id !== id));
     try {
       const response = await fetch(`http://127.0.0.1:5555/users/${id}`, {
         method: 'DELETE',
       });
-      if (!response.ok) {
-        throw new Error('Failed to delete user');
-      }
+      if (!response.ok) throw new Error('Failed to delete user');
+      setUsers(users.filter(user => user.id !== id));
     } catch (error) {
       console.error('Error deleting user:', error);
-      fetchUsers();
     }
   };
 
@@ -70,12 +61,9 @@ const Users = () => {
         },
         body: JSON.stringify(editingUser),
       });
-      if (!response.ok) {
-        throw new Error('Failed to edit user');
-      }
+      if (!response.ok) throw new Error('Failed to edit user');
       const updatedUser = await response.json();
-      const updatedUsers = users.map(user => (user.id === id ? updatedUser : user));
-      setUsers(updatedUsers);
+      setUsers(users.map(user => (user.id === id ? updatedUser : user)));
       setEditingUser(null);
     } catch (error) {
       console.error('Error editing user:', error);
@@ -84,10 +72,7 @@ const Users = () => {
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-    setEditingUser({
-      ...editingUser,
-      [name]: value,
-    });
+    setEditingUser({ ...editingUser, [name]: value });
   };
 
   const startEditingUser = (user) => {
@@ -212,6 +197,7 @@ const Users = () => {
 
 export default Users;
 
+// Styled Components
 const StyledSection = styled.section`
   margin: 5rem 0;
 `;

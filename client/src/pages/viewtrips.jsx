@@ -4,32 +4,55 @@ import homeImage from "../assets/hero.png";
 
 export default function ViewTrips() {
     const [bookedTrips, setBookedTrips] = useState([]);
+    const [destinations, setDestinations] = useState([]);
 
-    // Simulated data fetching
     useEffect(() => {
-        // Replace with actual API call or data fetching logic
         const fetchData = async () => {
-            // Mock data for booked trips
-            const mockData = [
-                { id: 1, destination: "Paris", startDate: "2024-07-20", endDate: "2024-07-25" },
-                { id: 2, destination: "New York", startDate: "2024-08-05", endDate: "2024-08-10" },
-                { id: 3, destination: "Tokyo", startDate: "2024-09-15", endDate: "2024-09-20" },
-            ];
+            try {
+                const tripsResponse = await fetch("http://127.0.0.1:5555/planned_trips");
+                if (!tripsResponse.ok) {
+                    throw new Error("Failed to fetch trips");
+                }
+                const tripsData = await tripsResponse.json();
+                setBookedTrips(tripsData);
 
-            setBookedTrips(mockData);
+                const destinationsResponse = await fetch("http://127.0.0.1:5555/destinations");
+                if (!destinationsResponse.ok) {
+                    throw new Error("Failed to fetch destinations");
+                }
+                const destinationsData = await destinationsResponse.json();
+                setDestinations(destinationsData);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
         };
 
         fetchData();
     }, []);
 
-    const handleDeleteTrip = (id) => {
-        const updatedTrips = bookedTrips.filter(trip => trip.id !== id);
-        setBookedTrips(updatedTrips);
-        // add code here to delete the trip from the server using an API call
+    const handleDeleteTrip = async (id) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5555/planned_trips/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete trip");
+            }
+
+            setBookedTrips(bookedTrips.filter(trip => trip.id !== id));
+        } catch (error) {
+            console.error("Error deleting trip:", error);
+        }
     };
 
     const handleEditTrip = (id) => {
         alert(`Edit trip with ID ${id}`);
+    };
+
+    const getDestinationName = (id) => {
+        const destination = destinations.find(dest => dest.id === id);
+        return destination ? destination.name : "Unknown Destination";
     };
 
     return (
@@ -39,16 +62,16 @@ export default function ViewTrips() {
             </Background>
             <Content>
                 <Title>
-                    <h2>bon voyage</h2>
+                    <h2>Bon Voyage</h2>
                 </Title>
                 <BookedTrips>
                     <h2>Booked Trips</h2>
                     <TripList>
                         {bookedTrips.map(trip => (
                             <TripItem key={trip.id}>
-                                <p><strong>Destination:</strong> {trip.destination}</p>
-                                <p><strong>Start Date:</strong> {trip.startDate}</p>
-                                <p><strong>End Date:</strong> {trip.endDate}</p>
+                                <p><strong>Destination:</strong> {getDestinationName(trip.destination_id)}</p>
+                                <p><strong>Start Date:</strong> {trip.start_date}</p>
+                                <p><strong>End Date:</strong> {trip.end_date}</p>
                                 <Button onClick={() => handleDeleteTrip(trip.id)}>Delete</Button>
                                 <Button onClick={() => handleEditTrip(trip.id)}>Edit</Button>
                             </TripItem>

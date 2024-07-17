@@ -52,6 +52,7 @@ with app.app_context():
         User(username="Jeremiah Parker", email="jeremiahparker656@gmail.com", password="jemmy23", profile_pic="https://i.pinimg.com/236x/f6/96/76/f6967658a300429c6cce91d1aaf32540.jpg")
     ]
 
+    
     db.session.add_all(users)
     db.session.commit()
 

@@ -66,8 +66,6 @@ const LogoContainer = styled.div`
   font-size: 1.2rem;
   font-weight: 900;
   text-transform: uppercase;
-  margin-left: 5.5rem; 
-
 `;
 
 const ToggleIcon = styled.div`

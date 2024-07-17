@@ -31,6 +31,25 @@ def get_all_users():
     ]
     return make_response(jsonify(users_list), 200)
 
+
+    
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.get_json()
+    new_user = User(
+        username=data['username'],
+        email=data['email'],
+        profile_pic=data.get('profile_pic')  # Optional
+    )
+    new_user.set_password(data['password'])  # Hash the password
+    
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": "User created successfully!"}), 201
+
+
+
+
 @app.route("/users", methods=["GET", "POST"])
 def users():
     if request.method == "GET":
@@ -43,7 +62,7 @@ def users():
                 'profile_pic': user.profile_pic
             } for user in users
         ]
-        return jsonify(users_list), 200
+        return jsonify([user.to_dict() for user in users]), 200 
             
     elif request.method == 'POST':
         data = request.get_json()
@@ -488,6 +507,23 @@ def get_trip_user(user_id, trip_id):
     }
     return jsonify(trip_user_dict), 200
 
+@app.route("/book_trip", methods=["POST"])
+def book_trip():
+    data = request.get_json()
+    try:
+        new_trip = PlannedTrip(
+            user_id=data['user_id'],
+            name=data['name'],
+            description=data.get('description', ''),
+            start_date=datetime.strptime(data['start_date'], '%Y-%m-%d').date(),
+            end_date=datetime.strptime(data['end_date'], '%Y-%m-%d').date(),
+            destination_id=data['destination_id']
+        )
+        db.session.add(new_trip)
+        db.session.commit()
+        return jsonify({"message": "Trip booked successfully!"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

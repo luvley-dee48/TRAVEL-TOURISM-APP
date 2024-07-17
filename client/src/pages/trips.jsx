@@ -1,36 +1,94 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from "styled-components";
 import homeImage from "../assets/hero.png";
 
-
 export default function Trips() {
-    return (
-        <TripSection id="trips">
-            <Background>
-                <img src={homeImage} alt="Background" />
-            </Background>
-            <Content>
-                <Title>
-                    <h2>Book a trip with us today</h2>
-                </Title>
-                <Search>
-                    <Container>
-                        <label htmlFor="destination">Enter Destination</label>
-                        <input type="text" id="destination" placeholder="Search Your location" />
-                    </Container>
-                    <Container>
-                        <label htmlFor="start-date">Start-date</label>
-                        <input type="date" id="start-date" />
-                    </Container>
-                    <Container>
-                        <label htmlFor="end-date">End-date</label>
-                        <input type="date" id="end-date" />
-                    </Container>
-                    <Button>Book Trip</Button>
-                </Search>
-            </Content>
-        </TripSection>
-    );
+  const [name, setName] = useState('');
+  const [destinationId, setDestinationId] = useState(''); // Change to destinationId
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const userId = 1; // Assuming the user is logged in and we have their user ID
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const response = await fetch("http://127.0.0.1:5555/book_trip", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user_id: userId, name, destination_id: destinationId, start_date: startDate, end_date: endDate }),
+    });
+
+    if (response.ok) {
+      alert("Trip booked successfully!");
+      // Clear the form
+      setName('');
+      setDestinationId('');
+      setStartDate('');
+      setEndDate('');
+    } else {
+      alert("Failed to book the trip. Please try again.");
+    }
+  };
+
+  return (
+    <TripSection id="trips">
+      <Background>
+        <img src={homeImage} alt="Background" />
+      </Background>
+      <Content>
+        <Title>
+          <h2>Book a trip with us today</h2>
+        </Title>
+        <Search onSubmit={handleSubmit}>
+          <Container>
+            <label htmlFor="name">Enter Your Name</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              required
+            />
+          </Container>
+          <Container>
+            <label htmlFor="destination">Enter Destination ID</label>
+            <input
+              type="text"
+              id="destination"
+              value={destinationId}
+              onChange={(e) => setDestinationId(e.target.value)}
+              placeholder="Enter destination ID"
+              required
+            />
+          </Container>
+          <Container>
+            <label htmlFor="start-date">Start Date</label>
+            <input
+              type="date"
+              id="start-date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              required
+            />
+          </Container>
+          <Container>
+            <label htmlFor="end-date">End Date</label>
+            <input
+              type="date"
+              id="end-date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              required
+            />
+          </Container>
+          <Button type="submit">Book Trip</Button>
+        </Search>
+      </Content>
+    </TripSection>
+  );
 }
 
 const TripSection = styled.section`
@@ -75,7 +133,7 @@ const Title = styled.div`
   }
 `;
 
-const Search = styled.div`
+const Search = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;

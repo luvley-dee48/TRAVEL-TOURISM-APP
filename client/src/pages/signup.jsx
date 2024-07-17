@@ -1,17 +1,67 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 export default function SignupForm({ closeForm }) {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        try {
+            const response = await fetch('http://127.0.0.1:5555/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: name,
+                    email: email,
+                    password: password,
+                }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Signup successful!');
+                closeForm(); // Close the form on successful signup
+            } else {
+                alert(data.message || 'Signup failed.'); // Display error message
+            }
+        } catch (error) {
+            alert('An error occurred. Please try again.'); // Handle network errors
+        }
+    };
+
     return (
         <FormContainer>
             <FormTitle>Signup</FormTitle>
-            <Form>
+            <Form onSubmit={handleSubmit}>
                 <Label>Name</Label>
-                <Input type="text" placeholder="Enter your name" />
+                <Input
+                    type="text"
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                />
                 <Label>Email</Label>
-                <Input type="email" placeholder="Enter your email" />
+                <Input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
                 <Label>Password</Label>
-                <Input type="password" placeholder="Enter your password" />
+                <Input
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
                 <SubmitButton type="submit">Signup</SubmitButton>
                 <CloseButton onClick={closeForm}>Close</CloseButton>
             </Form>

@@ -8,6 +8,7 @@ export default function Destination() {
     description: '',
     image_url: ''
   });
+  const [editDestination, setEditDestination] = useState(null);
   const [formVisible, setFormVisible] = useState(false);
 
   useEffect(() => {
@@ -18,28 +19,34 @@ export default function Destination() {
   }, []);
 
   const handleChange = (e) => {
-    setNewDestination({
-      ...newDestination,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    if (editDestination) {
+      setEditDestination({ ...editDestination, [name]: value });
+    } else {
+      setNewDestination({ ...newDestination, [name]: value });
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch("http://127.0.0.1:5555/destinations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(newDestination)
-    })
-      .then(res => res.json())
-      .then(data => {
-        setDestinations([...destinations, data]);
-        setNewDestination({ name: '', description: '', image_url: '' });
-        setFormVisible(false);
+    if (editDestination) {
+      handleEdit(editDestination.id, editDestination);
+    } else {
+      fetch("http://127.0.0.1:5555/destinations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newDestination)
       })
-      .catch(err => console.error(err));
+        .then(res => res.json())
+        .then(data => {
+          setDestinations([...destinations, data]);
+          setNewDestination({ name: '', description: '', image_url: '' });
+          setFormVisible(false);
+        })
+        .catch(err => console.error(err));
+    }
   };
 
   const handleDelete = (id) => {
@@ -65,8 +72,15 @@ export default function Destination() {
         setDestinations(destinations.map(destination =>
           destination.id === id ? data : destination
         ));
+        setEditDestination(null);
       })
       .catch(err => console.error(err));
+  };
+
+  const startEditing = (destination) => {
+    setEditDestination(destination);
+    setNewDestination({ name: destination.name, description: destination.description, image_url: destination.image_url });
+    setFormVisible(true);
   };
 
   return (
@@ -79,20 +93,20 @@ export default function Destination() {
       </div>
       {formVisible && (
         <AddDestinationForm onSubmit={handleSubmit}>
-          <h2>Add a New Destination</h2>
+          <h2>{editDestination ? "Edit Destination" : "Add a New Destination"}</h2>
           <InputContainer>
             <label htmlFor="name">Name</label>
-            <input type="text" id="name" name="name" value={newDestination.name} onChange={handleChange} />
+            <input type="text" id="name" name="name" value={editDestination ? editDestination.name : newDestination.name} onChange={handleChange} />
           </InputContainer>
           <InputContainer>
             <label htmlFor="description">Description</label>
-            <input type="text" id="description" name="description" value={newDestination.description} onChange={handleChange} />
+            <input type="text" id="description" name="description" value={editDestination ? editDestination.description : newDestination.description} onChange={handleChange} />
           </InputContainer>
           <InputContainer>
             <label htmlFor="imageUrl">Image URL</label>
-            <input type="text" id="imageUrl" name="image_url" value={newDestination.image_url} onChange={handleChange} />
+            <input type="text" id="imageUrl" name="image_url" value={editDestination ? editDestination.image_url : newDestination.image_url} onChange={handleChange} />
           </InputContainer>
-          <Button type="submit">Add Destination</Button>
+          <Button type="submit">{editDestination ? "Update Destination" : "Add Destination"}</Button>
         </AddDestinationForm>
       )}
       <DestinationsGrid>
@@ -102,7 +116,7 @@ export default function Destination() {
             <h2>{destination.name}</h2>
             <p>{destination.description}</p>
             <Button onClick={() => handleDelete(destination.id)}>Delete</Button>
-            <Button onClick={() => handleEdit(destination.id, { name: "Updated Name", description: "Updated Description", image_url: "Updated URL" })}>Edit</Button>
+            <Button onClick={() => startEditing(destination)}>Edit</Button>
           </DestinationCard>
         ))}
       </DestinationsGrid>
