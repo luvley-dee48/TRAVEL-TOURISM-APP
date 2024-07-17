@@ -22,14 +22,18 @@ class User(db.Model, SerializerMixin):
     reviews = db.relationship("Review", backref="user", lazy=True)
     user_trips = db.relationship('TripsUsers', backref='user', lazy=True)
 
-    def __repr__(self):
-         return f'<User {self.username}>'
-    
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+
+
+    def __repr__(self):
+         return f'<User {self.username}>'
+    
     
 class PlannedTrip(db.Model, SerializerMixin):
     __tablename__ = 'planned_trips'
@@ -47,6 +51,14 @@ class PlannedTrip(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<PlannedTrip {self.name}, User {self.user_id}, Destination {self.destination_id}>'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'profile_pic': self.profile_pic
+        }
 
 class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
@@ -80,6 +92,8 @@ class TripsUsers(db.Model, SerializerMixin):
 
     trip_id = db.Column(db.Integer, db.ForeignKey('planned_trips.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+
+  
 
     def __repr__(self):
         return f'<TripsUsers Trip {self.trip_id}, User {self.user_id}>'
