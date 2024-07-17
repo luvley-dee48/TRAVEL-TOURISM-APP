@@ -8,6 +8,7 @@ export default function Destination() {
     description: '',
     image_url: ''
   });
+  const [formVisible, setFormVisible] = useState(false);
 
   useEffect(() => {
     fetch("http://127.0.0.1:5555/destinations")
@@ -32,22 +33,23 @@ export default function Destination() {
       },
       body: JSON.stringify(newDestination)
     })
-    .then(res => res.json())
-    .then(data => {
-      setDestinations([...destinations, data]);
-      setNewDestination({ name: '', description: '', image_url: '' });
-    })
-    .catch(err => console.error(err));
+      .then(res => res.json())
+      .then(data => {
+        setDestinations([...destinations, data]);
+        setNewDestination({ name: '', description: '', image_url: '' });
+        setFormVisible(false);
+      })
+      .catch(err => console.error(err));
   };
 
   const handleDelete = (id) => {
     fetch(`http://127.0.0.1:5555/destinations/${id}`, {
       method: "DELETE"
     })
-    .then(() => {
-      setDestinations(destinations.filter(destination => destination.id !== id));
-    })
-    .catch(err => console.error(err));
+      .then(() => {
+        setDestinations(destinations.filter(destination => destination.id !== id));
+      })
+      .catch(err => console.error(err));
   };
 
   const handleEdit = (id, updatedDestination) => {
@@ -58,20 +60,41 @@ export default function Destination() {
       },
       body: JSON.stringify(updatedDestination)
     })
-    .then(res => res.json())
-    .then(data => {
-      setDestinations(destinations.map(destination => 
-        destination.id === id ? data : destination
-      ));
-    })
-    .catch(err => console.error(err));
+      .then(res => res.json())
+      .then(data => {
+        setDestinations(destinations.map(destination =>
+          destination.id === id ? data : destination
+        ));
+      })
+      .catch(err => console.error(err));
   };
 
   return (
     <Section>
       <div className="title">
         <h1>Destinations</h1>
+        <ToggleButton onClick={() => setFormVisible(prev => !prev)}>
+          {formVisible ? "Hide Form" : "Add New Destination"}
+        </ToggleButton>
       </div>
+      {formVisible && (
+        <AddDestinationForm onSubmit={handleSubmit}>
+          <h2>Add a New Destination</h2>
+          <InputContainer>
+            <label htmlFor="name">Name</label>
+            <input type="text" id="name" name="name" value={newDestination.name} onChange={handleChange} />
+          </InputContainer>
+          <InputContainer>
+            <label htmlFor="description">Description</label>
+            <input type="text" id="description" name="description" value={newDestination.description} onChange={handleChange} />
+          </InputContainer>
+          <InputContainer>
+            <label htmlFor="imageUrl">Image URL</label>
+            <input type="text" id="imageUrl" name="image_url" value={newDestination.image_url} onChange={handleChange} />
+          </InputContainer>
+          <Button type="submit">Add Destination</Button>
+        </AddDestinationForm>
+      )}
       <DestinationsGrid>
         {destinations.map(destination => (
           <DestinationCard key={destination.id}>
@@ -79,27 +102,10 @@ export default function Destination() {
             <h2>{destination.name}</h2>
             <p>{destination.description}</p>
             <Button onClick={() => handleDelete(destination.id)}>Delete</Button>
-           
             <Button onClick={() => handleEdit(destination.id, { name: "Updated Name", description: "Updated Description", image_url: "Updated URL" })}>Edit</Button>
           </DestinationCard>
         ))}
       </DestinationsGrid>
-      <AddDestinationForm onSubmit={handleSubmit}>
-        <h2>Add a New Destination</h2>
-        <InputContainer>
-          <label htmlFor="name">Name</label>
-          <input type="text" id="name" name="name" value={newDestination.name} onChange={handleChange} />
-        </InputContainer>
-        <InputContainer>
-          <label htmlFor="description">Description</label>
-          <input type="text" id="description" name="description" value={newDestination.description} onChange={handleChange} />
-        </InputContainer>
-        <InputContainer>
-          <label htmlFor="imageUrl">Image URL</label>
-          <input type="text" id="imageUrl" name="image_url" value={newDestination.image_url} onChange={handleChange} />
-        </InputContainer>
-        <Button type="submit">Add Destination</Button>
-      </AddDestinationForm>
     </Section>
   );
 }
@@ -108,6 +114,25 @@ const Section = styled.section`
   padding: 2rem 0;
   .title {
     text-align: center;
+    position: relative;
+  }
+`;
+
+const ToggleButton = styled.button`
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin: 1rem;
+
+  &:hover {
+    background-color: #0056b3;
   }
 `;
 
@@ -148,7 +173,7 @@ const AddDestinationForm = styled.form`
   color: white;
   padding: 1rem;
   border-radius: 10px;
-  margin-top: 2rem;
+  margin: 2rem auto;
   width: 100%;
   max-width: 600px;
 
