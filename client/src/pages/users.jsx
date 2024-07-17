@@ -6,10 +6,11 @@ const Users = () => {
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
-    password: '', // Add password field if needed
+    password: '',
     profile_pic: '',
   });
   const [editingUser, setEditingUser] = useState(null);
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -38,14 +39,8 @@ const Users = () => {
         throw new Error('Failed to add user');
       }
       const data = await response.json();
-      console.log('New user added:', data);
       setUsers([...users, data]);
-      setNewUser({
-        username: '',
-        email: '',
-        password: '', // Add password field if needed
-        profile_pic: '',
-      });
+      setNewUser({ username: '', email: '', password: '', profile_pic: '' });
     } catch (error) {
       console.error('Error adding user:', error);
     }
@@ -79,9 +74,7 @@ const Users = () => {
         throw new Error('Failed to edit user');
       }
       const updatedUser = await response.json();
-      const updatedUsers = users.map(user =>
-        user.id === id ? updatedUser : user
-      );
+      const updatedUsers = users.map(user => (user.id === id ? updatedUser : user));
       setUsers(updatedUsers);
       setEditingUser(null);
     } catch (error) {
@@ -98,7 +91,7 @@ const Users = () => {
   };
 
   const startEditingUser = (user) => {
-    setEditingUser(user);
+    setEditingUser({ ...user });
   };
 
   const cancelEditing = () => {
@@ -109,7 +102,52 @@ const Users = () => {
     <StyledSection>
       <Title>
         <h2>Users Management</h2>
+        <Button onClick={() => setIsFormVisible(!isFormVisible)}>
+          {isFormVisible ? 'Hide Form' : 'Add User'}
+        </Button>
       </Title>
+      {isFormVisible && (
+        <AddUserForm>
+          <h2>Add New User</h2>
+          <InputContainer>
+            <label>Username:</label>
+            <input
+              type='text'
+              name='username'
+              value={newUser.username}
+              onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+            />
+          </InputContainer>
+          <InputContainer>
+            <label>Email:</label>
+            <input
+              type='email'
+              name='email'
+              value={newUser.email}
+              onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+            />
+          </InputContainer>
+          <InputContainer>
+            <label>Password:</label>
+            <input
+              type='password'
+              name='password'
+              value={newUser.password}
+              onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+            />
+          </InputContainer>
+          <InputContainer>
+            <label>Profile Picture URL:</label>
+            <input
+              type='text'
+              name='profile_pic'
+              value={newUser.profile_pic}
+              onChange={(e) => setNewUser({ ...newUser, profile_pic: e.target.value })}
+            />
+          </InputContainer>
+          <Button onClick={addUser}>Add User</Button>
+        </AddUserForm>
+      )}
       <UserContainer>
         {users.map(user => (
           <UserCard key={user.id}>
@@ -168,52 +206,11 @@ const Users = () => {
           </UserCard>
         ))}
       </UserContainer>
-
-      <AddUserForm>
-        <h2>Add New User</h2>
-        <InputContainer>
-          <label>Username:</label>
-          <input
-            type='text'
-            name='username'
-            value={newUser.username}
-            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-          />
-        </InputContainer>
-        <InputContainer>
-          <label>Email:</label>
-          <input
-            type='email'
-            name='email'
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-          />
-        </InputContainer>
-        <InputContainer>
-          <label>Password:</label>
-          <input
-            type='password'
-            name='password'
-            value={newUser.password}
-            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-          />
-        </InputContainer>
-        <InputContainer>
-          <label>Profile Picture URL:</label>
-          <input
-            type='text'
-            name='profile_pic'
-            value={newUser.profile_pic}
-            onChange={(e) => setNewUser({ ...newUser, profile_pic: e.target.value })}
-          />
-        </InputContainer>
-        <Button onClick={addUser}>Add User</Button>
-      </AddUserForm>
     </StyledSection>
   );
 };
 
-export default Users;  
+export default Users;
 
 const StyledSection = styled.section`
   margin: 5rem 0;
@@ -267,6 +264,8 @@ const AddUserForm = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-top: 2rem;
   max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 
   h2 {
     margin-bottom: 1rem;
@@ -313,4 +312,3 @@ const ProfilePicture = styled.img`
   border-radius: 50%;
   margin-bottom: 1rem;
 `;
-

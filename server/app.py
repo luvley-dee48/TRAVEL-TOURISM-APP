@@ -21,16 +21,15 @@ def index():
 @app.route("/all_users")
 def get_all_users():
     users = User.query.all()
-    users_list= [
+    users_list = [
         {
             'id': user.id,
             'username': user.username,
             'email': user.email,
             'profile_pic': user.profile_pic
-        }for user in users
+        } for user in users
     ]
     return make_response(jsonify(users_list), 200)
-
 
 @app.route("/users", methods=["GET", "POST"])
 def users():
@@ -77,51 +76,11 @@ def users():
             db.session.rollback()
             return jsonify({"error": str(e)}), 400
 
-        
-@app.route("/users/<int:id>")
-def user_by_id(id):
-    user = User.query.filter_by(id=id).first()
-
-    if user:
-        body = {
-        'id': user.id,
-        'username': user.username,
-        'email': user.email,
-        'profile_pic': user.profile_pic
-        }
-        status = 200
-
-    else:
-        body = {
-            "message": f"User id:{id} not found."
-        }
-        status = 404
-
-    return make_response(jsonify(body), status)
-
-@app.route("/first_user")
-def get_first_user():
-    user = User.query.first()
-    user_dict = {
-        'id': user.id,
-        'username': user.username,
-        'email': user.email,
-        'profile_pic': user.profile_pic
-    }
-
-    response = make_response(jsonify(user_dict), 200)
-
-    return response
-
-@app.route("/users/<int:id>", methods=["GET", "PATCH", "DELETE"])
+@app.route("/users/<int:id>", methods=["GET", "PUT", "PATCH", "DELETE"])
 def get_user_by_id(id):
     user = User.query.filter_by(id=id).first()
     if user is None:
-        body = {
-            "message": f"User id:{id} not found."
-        }
-        status = 404
-        return make_response(jsonify(body), status)
+        return make_response(jsonify({"message": f"User id:{id} not found."}), 404)
     
     if request.method == "GET":
         user_dict = {
@@ -130,7 +89,25 @@ def get_user_by_id(id):
             'email': user.email,
             'profile_pic': user.profile_pic
         }
-        status = 200
+        return make_response(jsonify(user_dict), 200)
+
+    elif request.method == "PUT":
+        data = request.get_json()
+        if not data:
+            return jsonify({"message": "No data provided."}), 400
+        
+        user.username = data.get('username', user.username)
+        user.email = data.get('email', user.email)
+        user.profile_pic = data.get('profile_pic', user.profile_pic)
+        db.session.commit()
+
+        user_dict = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'profile_pic': user.profile_pic
+        }
+        return make_response(jsonify(user_dict), 200)
 
     elif request.method == "PATCH":
         data = request.get_json()
@@ -148,24 +125,29 @@ def get_user_by_id(id):
                 'email': user.email,
                 'profile_pic': user.profile_pic
             }
-            status = 200
+            return make_response(jsonify(user_dict), 200)
         else:
-            user_dict = {
-                "message": "Invalid data provided."
-            }
-            status = 400
+            return jsonify({"message": "Invalid data provided."}), 400
 
     elif request.method == "DELETE":
         db.session.delete(user)
         db.session.commit()
-        user_dict = {
-            "message": f"User id:{id} has been deleted."
-        }
-        status = 204
+        return jsonify({"message": f"User id:{id} has been deleted."}), 204
 
-    return make_response(jsonify(user_dict), status)
 
-from datetime import datetime
+@app.route("/first_user")
+def get_first_user():
+    user = User.query.first()
+    user_dict = {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'profile_pic': user.profile_pic
+    }
+
+    response = make_response(jsonify(user_dict), 200)
+
+    return response
 
 @app.route("/planned_trips", methods=["GET", "POST"])
 def planned_trips():
@@ -209,7 +191,6 @@ def planned_trips():
             'destination_id': new_trip.destination_id
         }
         return make_response(jsonify(trip_dict), 201)
-
 
 @app.route("/planned_trips/<int:id>", methods=["GET", "PATCH", "DELETE"])
 def get_planned_trip_by_id(id):
@@ -274,17 +255,15 @@ def destinations():
                 "description": destination.description,
                 "location": destination.location,
                 "image_url": destination.image_url
-            }for destination in Destination.query.all()
-
-            
+            } for destination in Destination.query.all()
         ]
         return make_response(jsonify(destinations), 200)
     
     elif request.method == "POST":
         data = request.get_json()
         new_destination = Destination(
-            name = data.get("name"),
-            description = data.get("description"),
+            name=data.get("name"),
+            description=data.get("description"),
             location=data.get("location"),
             image_url=data.get("image_url")
         )
