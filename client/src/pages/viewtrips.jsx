@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
-import homeImage from "../assets/hero.png";
 
 export default function ViewTrips() {
     const [bookedTrips, setBookedTrips] = useState([]);
@@ -39,6 +38,7 @@ export default function ViewTrips() {
     }, []);
 
     const handleDeleteTrip = async (id) => {
+        console.log(`Deleting trip with ID: ${id}`);
         try {
             const response = await fetch(`http://127.0.0.1:5555/planned_trips/${id}`, {
                 method: 'DELETE',
@@ -54,6 +54,7 @@ export default function ViewTrips() {
             }
 
             setBookedTrips(currentTrips => currentTrips.filter(trip => trip.id !== id));
+            console.log(`Trip with ID: ${id} deleted successfully`);
         } catch (error) {
             console.error("Error deleting trip:", error);
             alert("Error deleting trip. See console for details.");
@@ -61,6 +62,7 @@ export default function ViewTrips() {
     };
 
     const handleEditTrip = (id) => {
+        console.log(`Editing trip with ID: ${id}`);
         alert(`Edit trip with ID ${id}`);
     };
 
@@ -79,9 +81,6 @@ export default function ViewTrips() {
 
     return (
         <TripSection id="trips">
-            <Background>
-                <img src={homeImage} alt="Background" />
-            </Background>
             <Content>
                 <Title>
                     <h2>Bon Voyage</h2>
@@ -108,23 +107,7 @@ export default function ViewTrips() {
 const TripSection = styled.section`
     position: relative;
     width: 100%;
-    height: 100vh;
-`;
-
-const Background = styled.div`
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-
-    img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        filter: brightness(0.7);
-    }
+    padding-top: 60px;  /* Adjust padding to match the height of your navbar */
 `;
 
 const Content = styled.div`
@@ -132,14 +115,13 @@ const Content = styled.div`
     z-index: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     height: 100%;
+    padding: 1rem;
 `;
 
 const Title = styled.div`
-    color: #fff;
-    text-align: center;
+    color: #000;
+    text-align: left; /* Align title to the left */
 
     h2 {
         font-size: 2.5rem;
@@ -154,12 +136,14 @@ const BookedTrips = styled.div`
     border-radius: 10px;
     margin-top: 2rem;
     width: 100%;
-    max-width: 800px;
+    max-width: 100%;  /* Ensure the BookedTrips section takes full width */
 `;
 
 const TripList = styled.div`
-    display: grid;
+    display: flex;
     gap: 1rem;
+    flex-wrap: wrap;  /* Allows trips to wrap to the next line if necessary */
+    justify-content: space-between;  /* Distribute items across the row */
 `;
 
 const TripItem = styled.div`
@@ -167,6 +151,9 @@ const TripItem = styled.div`
     padding: 1rem;
     border-radius: 5px;
     position: relative;
+    flex: 1;  /* Allow items to grow and fill the row */
+    min-width: 300px;  /* Ensure a minimum width for items */
+    box-sizing: border-box;
 `;
 
 const Button = styled.button`
