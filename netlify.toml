@@ -1,0 +1,7 @@
+[build]
+  base = ""        # No specific subdirectory
+  publish = "dist" # Directory to publish the build output
+  command = "npm run build"
+
+[context.production.environment]
+  NODE_ENV = "production"
