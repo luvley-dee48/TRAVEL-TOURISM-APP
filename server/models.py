@@ -92,7 +92,7 @@ class TripsUsers(db.Model, SerializerMixin):
 
     trip_id = db.Column(db.Integer, db.ForeignKey('planned_trips.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-
+    trip_id = db.Column(db.Integer, db.ForeignKey('planned_trips.id', ondelete='CASCADE'))
   
 
     def __repr__(self):
