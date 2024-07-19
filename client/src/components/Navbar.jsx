@@ -15,7 +15,7 @@ export default function Navbar() {
         <Brand>
           <LogoContainer>
             <img src={logo} alt="Logo" />
-            Tours & Travel
+            Travel Wise
           </LogoContainer>
           <ToggleIcon onClick={() => setNavbarState((prev) => !prev)}>
             {navbarState ? <VscChromeClose /> : <GiHamburgerMenu />}
