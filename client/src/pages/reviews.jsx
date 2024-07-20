@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 import avatarImage2 from "../assets/avatarimage2.jpg";
-
+import Navbar from "../components/Navbar"; 
 export default function Reviews() {
     const [reviews, setReviews] = useState([]);
 
@@ -23,6 +23,8 @@ export default function Reviews() {
     }, []);
 
     return (
+      <>
+        <Navbar />
         <StyledSection id="reviews">
             <Title>
                 <h2>Happy Customers</h2>
@@ -43,6 +45,7 @@ export default function Reviews() {
                 ))}
             </ReviewContainer>
         </StyledSection>
+        </>
     );
 }
 

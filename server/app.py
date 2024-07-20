@@ -3,8 +3,15 @@ from flask_migrate  import Migrate
 from datetime import datetime, timezone
 from models import db, User, PlannedTrip, Destination, Review, TripsUsers
 from flask_cors import CORS
-
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
 app = Flask(__name__)
+
+
+app.config["JWT_SECRET_KEY"] = "kdjhhgjdxkjfjndjbtkdnjbj4fg"  # Change this!
+jwt = JWTManager(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///app.db'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -13,6 +20,18 @@ CORS(app)
 migrate = Migrate(app, db)
 
 db.init_app(app)
+
+   
+@app.route("/login", methods=["POST"])
+def login():
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
+    if username != "test" or password != "test":
+        return jsonify({"msg": "Bad username or password"}), 401
+
+    access_token = create_access_token(identity=username)
+    return jsonify(access_token=access_token)
+
 
 @app.route("/")
 def index():
@@ -543,6 +562,7 @@ def book_trip():
         return jsonify({"message": "Trip booked successfully!"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+ 
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

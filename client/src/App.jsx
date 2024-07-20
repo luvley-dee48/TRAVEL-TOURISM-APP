@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "./components/Navbar";
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -19,7 +19,7 @@ import ViewTrips from "./pages/viewtrips";
 export default function App() {
   return (
     <Router>
-      <Navbar />
+      
       <Routes>
         <Route exact path="/" element={<Home />} />
         <Route path="/services" element={<Services />} />

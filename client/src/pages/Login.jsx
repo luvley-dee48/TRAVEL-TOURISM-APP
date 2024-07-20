@@ -1,17 +1,66 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginForm({ closeForm }) {
+    const [username, setUsername] = useState(""); 
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const opts = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            }),
+        };
+        try {
+            const resp = await fetch("http://127.0.0.1:5555/login", opts);
+            if (resp.status !== 200) {
+                setError("There has been some error");
+                return false;
+            }
+            const data = await resp.json();
+            console.log("This came from the backend", data);
+            sessionStorage.setItem("token", data.access_token);
+            navigate("/home"); 
+            return true;
+        } catch (error) {
+            console.log("There has been an error in logging in");
+            setError("There has been an error logging in");
+            return false;
+        }
+    };
+
     return (
         <FormContainer>
             <FormTitle>Login</FormTitle>
-            <Form>
-                <Label>Email</Label>
-                <Input type="email" placeholder="Enter your email" />
+            <Form onSubmit={handleSubmit}>
+                <Label>Username</Label>
+                <Input
+                    type="text"
+                    placeholder="Enter your username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                />
                 <Label>Password</Label>
-                <Input type="password" placeholder="Enter your password" />
+                <Input
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+                {error && <ErrorMessage>{error}</ErrorMessage>}
                 <SubmitButton type="submit">Login</SubmitButton>
-                <CloseButton onClick={closeForm}>Close</CloseButton>
+                <CloseButton type="button" onClick={closeForm}>Close</CloseButton>
             </Form>
         </FormContainer>
     );
@@ -73,4 +122,9 @@ const CloseButton = styled.button`
     &:hover {
         background-color: #999;
     }
+`;
+
+const ErrorMessage = styled.p`
+    color: red;
+    margin-bottom: 1rem;
 `;

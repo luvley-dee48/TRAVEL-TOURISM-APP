@@ -1,54 +1,53 @@
-import React, { useState, useCallback } from "react";
+// src/pages/home.js
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import homeImage from "../assets/hero.png";
-import LoginForm from "../pages/Login";
-import SignupForm from "../pages/signup";
-
+import Navbar from "../components/Navbar"; 
 
 export default function Home() {
-  const [showLoginForm, setShowLoginForm] = useState(false);
-  const [showSignupForm, setShowSignupForm] = useState(false);
-
-  const closeForms = useCallback(() => {
-    setShowLoginForm(false);
-    setShowSignupForm(false);
-  }, []);
+  const navigate = useNavigate();
 
   return (
-    <HeroSection id="hero">
-      <Background>
-        <img src={homeImage} alt="Background" />
-      </Background>
-      <Content>
-        <Title>
-          <h1>Welcome To Tours & Travel</h1>
-          <p>
-            We are dedicated to providing every customer with the safest and most reliable mode of transport to the most desired destination of your choice.
-          </p>
-        </Title>
-        <ButtonGroup>
-          <LoginButton onClick={() => setShowLoginForm(true)}>Login</LoginButton>
-          <SignupButton onClick={() => setShowSignupForm(true)}>Signup</SignupButton>
-        </ButtonGroup>
-      </Content>
-      {showLoginForm && <LoginForm closeForm={closeForms} />}
-      {showSignupForm && <SignupForm closeForm={closeForms} />}
-    </HeroSection>
+    <>
+      <Navbar />
+      <HeroSection id="hero">
+        <Background>
+          <img src={homeImage} alt="Background" />
+        </Background>
+        <Content>
+          <Title>
+            <h1>Welcome To Tours & Travel</h1>
+            <p>
+              We are dedicated to providing every customer with the safest and most reliable mode of transport to the most desired destination of your choice.
+            </p>
+          </Title>
+          <ButtonGroup>
+            <LoginButton onClick={() => navigate("/login")}>Login</LoginButton>
+            <SignupButton onClick={() => navigate("/sign-up")}>Signup</SignupButton>
+          </ButtonGroup>
+        </Content>
+      </HeroSection>
+    </>
   );
 }
 
 const HeroSection = styled.section`
   position: relative;
   width: 100%;
-  height: 100vh; /* Full viewport height */
+  height: 100vh;
+  background-image: url(${homeImage});
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 `;
 
 const Background = styled.div`
   height: 100%;
   img {
     width: 100%;
-    height: 100vh; /* Full viewport height */
-    object-fit: cover; /* Cover the whole area */
+    height: 100vh;
+    object-fit: cover;
     filter: brightness(60%);
   }
 `;
