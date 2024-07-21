@@ -1,67 +1,87 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
-export default function LoginForm({ closeForm }) {
-    const [username, setUsername] = useState(""); 
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+export default function LoginForm({ onLogin }) {
     const navigate = useNavigate();
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        const opts = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            }),
-        };
-        try {
-            const resp = await fetch("http://127.0.0.1:5555/login", opts);
-            if (resp.status !== 200) {
-                setError("There has been some error");
+    const formik = useFormik({
+        initialValues: {
+            username: '',
+            password: '',
+        },
+        validationSchema: Yup.object({
+            username: Yup.string()
+                .required('Username is required'),
+            password: Yup.string()
+                .required('Password is required'),
+        }),
+        onSubmit: async (values, { setSubmitting, setErrors }) => {
+            const opts = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(values),
+            };
+            try {
+                const resp = await fetch("http://127.0.0.1:5555/login", opts);
+                if (resp.status !== 200) {
+                    setErrors({ submit: "There has been some error" });
+                    setSubmitting(false);
+                    return false;
+                }
+                const data = await resp.json();
+                console.log("This came from the backend", data);
+                sessionStorage.setItem("token", data.access_token);
+                sessionStorage.setItem("role", data.role); // Store the user's role
+                onLogin(); // Notify that the user is authenticated
+                navigate("/"); // Redirect to the homepage
+                return true;
+            } catch (error) {
+                console.log("There has been an error in logging in");
+                setErrors({ submit: "There has been an error logging in" });
+                setSubmitting(false);
                 return false;
             }
-            const data = await resp.json();
-            console.log("This came from the backend", data);
-            sessionStorage.setItem("token", data.access_token);
-            navigate("/home"); 
-            return true;
-        } catch (error) {
-            console.log("There has been an error in logging in");
-            setError("There has been an error logging in");
-            return false;
-        }
-    };
+        },
+    });
 
     return (
         <FormContainer>
             <FormTitle>Login</FormTitle>
-            <Form onSubmit={handleSubmit}>
-                <Label>Username</Label>
+            <Form onSubmit={formik.handleSubmit}>
+                <Label htmlFor="username">Username</Label>
                 <Input
+                    id="username"
                     type="text"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
+                    {...formik.getFieldProps('username')}
                 />
-                <Label>Password</Label>
+                {formik.touched.username && formik.errors.username ? (
+                    <ErrorMessage>{formik.errors.username}</ErrorMessage>
+                ) : null}
+
+                <Label htmlFor="password">Password</Label>
                 <Input
+                    id="password"
                     type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                    {...formik.getFieldProps('password')}
                 />
-                {error && <ErrorMessage>{error}</ErrorMessage>}
-                <SubmitButton type="submit">Login</SubmitButton>
-                <CloseButton type="button" onClick={closeForm}>Close</CloseButton>
+                {formik.touched.password && formik.errors.password ? (
+                    <ErrorMessage>{formik.errors.password}</ErrorMessage>
+                ) : null}
+
+                {formik.errors.submit && <ErrorMessage>{formik.errors.submit}</ErrorMessage>}
+
+                <SubmitButton type="submit" disabled={formik.isSubmitting}>
+                    Login
+                </SubmitButton>
             </Form>
+            <SignupLink>
+                Don't have an account? <Link to="/sign-up">Sign up</Link>
+            </SignupLink>
         </FormContainer>
     );
 }
@@ -111,20 +131,22 @@ const SubmitButton = styled.button`
     }
 `;
 
-const CloseButton = styled.button`
-    padding: 0.5rem;
-    background-color: #ccc;
-    color: white;
-    border: none;
-    border-radius: 0.25rem;
-    cursor: pointer;
-
-    &:hover {
-        background-color: #999;
-    }
-`;
-
 const ErrorMessage = styled.p`
     color: red;
     margin-bottom: 1rem;
+`;
+
+const SignupLink = styled.p`
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+
+    a {
+        color: #007bff;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
 `;

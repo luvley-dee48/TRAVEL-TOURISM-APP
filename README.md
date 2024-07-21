@@ -125,10 +125,16 @@ flask db upgrade
     npm start
 ```
 
+
+##
+To be able to change user to admin download **SQLite3 Editor**
+Go to users then under role edit to **admin**
+
 ## Technologies Used
 
 React
 Python
+sqllite
 
 ## Support and Contact Details
 

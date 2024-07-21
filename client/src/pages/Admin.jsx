@@ -1,10 +1,13 @@
 // src/pages/home.js
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import homeImage from "../assets/hero.png";
 import Navbar from "../components/Navbar"; 
 
-export default function Home() {
+export default function Admin() {
+  const navigate = useNavigate();
+
   return (
     <>
       <Navbar />
@@ -19,6 +22,10 @@ export default function Home() {
               We are dedicated to providing every customer with the safest and most reliable mode of transport to the most desired destination of your choice.
             </p>
           </Title>
+          <ButtonGroup>
+            <LoginButton onClick={() => navigate("/login")}>Login</LoginButton>
+            <SignupButton onClick={() => navigate("/sign-up")}>Signup</SignupButton>
+          </ButtonGroup>
         </Content>
       </HeroSection>
     </>
@@ -70,5 +77,45 @@ const Title = styled.div`
     padding: 0 30vw;
     margin-top: 0.5rem;
     font-size: 1.2rem;
+  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+`;
+
+const LoginButton = styled.button`
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 1rem;
+  border: none;
+  color: white;
+  background-color: #48cae4;
+  font-size: 1.1rem;
+  letter-spacing: 0.1rem;
+  text-transform: uppercase;
+  transition: 0.3s ease-in-out;
+
+  &:hover {
+    background-color: #023e8a;
+  }
+`;
+
+const SignupButton = styled.button`
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 1rem;
+  border: none;
+  color: white;
+  background-color: #48cae4;
+  font-size: 1.1rem;
+  letter-spacing: 0.1rem;
+  text-transform: uppercase;
+  transition: 0.3s ease-in-out;
+
+  &:hover {
+    background-color: #023e8a;
   }
 `;

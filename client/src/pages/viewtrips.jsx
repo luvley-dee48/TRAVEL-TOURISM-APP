@@ -1,12 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 export default function ViewTrips() {
     const [bookedTrips, setBookedTrips] = useState([]);
     const [destinations, setDestinations] = useState([]);
     const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
+    const role = sessionStorage.getItem("role");
 
     useEffect(() => {
+        // Redirect if the user is not an admin
+        if (role !== "admin") {
+            navigate("/");
+            return;
+        }
+
         const fetchData = async () => {
             try {
                 const tripsResponse = await fetch("http://127.0.0.1:5555/planned_trips");
@@ -16,14 +25,14 @@ export default function ViewTrips() {
                 const tripsData = await tripsResponse.json();
                 setBookedTrips(tripsData);
 
-                const destinationsResponse = await fetch("http://127.0.0.1:5555/planned_trips");
+                const destinationsResponse = await fetch("http://127.0.0.1:5555/destinations"); // Correct endpoint
                 if (!destinationsResponse.ok) {
                     throw new Error("Failed to fetch destinations");
                 }
                 const destinationsData = await destinationsResponse.json();
                 setDestinations(destinationsData);
 
-                const usersResponse = await fetch("http://127.0.0.1:5555/users"); // Adjust endpoint as per your backend
+                const usersResponse = await fetch("http://127.0.0.1:5555/users");
                 if (!usersResponse.ok) {
                     throw new Error("Failed to fetch users");
                 }
@@ -35,7 +44,7 @@ export default function ViewTrips() {
         };
 
         fetchData();
-    }, []);
+    }, [role, navigate]);
 
     const handleDeleteTrip = async (id) => {
         console.log(`Deleting trip with ID: ${id}`);
@@ -107,7 +116,7 @@ export default function ViewTrips() {
 const TripSection = styled.section`
     position: relative;
     width: 100%;
-    padding-top: 60px;  /* Adjust padding to match the height of your navbar */
+    padding-top: 60px;
 `;
 
 const Content = styled.div`
@@ -121,7 +130,7 @@ const Content = styled.div`
 
 const Title = styled.div`
     color: #000;
-    text-align: left; /* Align title to the left */
+    text-align: left;
 
     h2 {
         font-size: 2.5rem;
@@ -136,14 +145,14 @@ const BookedTrips = styled.div`
     border-radius: 10px;
     margin-top: 2rem;
     width: 100%;
-    max-width: 100%;  /* Ensure the BookedTrips section takes full width */
+    max-width: 100%;
 `;
 
 const TripList = styled.div`
     display: flex;
     gap: 1rem;
-    flex-wrap: wrap;  /* Allows trips to wrap to the next line if necessary */
-    justify-content: space-between;  /* Distribute items across the row */
+    flex-wrap: wrap;
+    justify-content: space-between;
 `;
 
 const TripItem = styled.div`
@@ -151,8 +160,8 @@ const TripItem = styled.div`
     padding: 1rem;
     border-radius: 5px;
     position: relative;
-    flex: 1;  /* Allow items to grow and fill the row */
-    min-width: 300px;  /* Ensure a minimum width for items */
+    flex: 1;
+    min-width: 300px;
     box-sizing: border-box;
 `;
 

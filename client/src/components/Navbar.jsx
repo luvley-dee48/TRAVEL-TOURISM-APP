@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import logo from "../assets/logo.png";
 import { GiHamburgerMenu } from "react-icons/gi";
@@ -8,6 +8,12 @@ import { Link } from "react-router-dom";
 export default function Navbar() {
   const [navbarState, setNavbarState] = useState(false);
   const [sidebarState, setSidebarState] = useState(false);
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    const userRole = sessionStorage.getItem("role");
+    setRole(userRole);
+  }, []);
 
   return (
     <>
@@ -24,7 +30,7 @@ export default function Navbar() {
         <NavLinks>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/services">Services</Link></li>
-          <li><Link to="/viewtrips">ViewTrips</Link></li>
+          {role === "admin" && <li><Link to="/viewtrips">View Trips</Link></li>}
         </NavLinks>
       </StyledNav>
       <SidebarToggle onClick={() => setSidebarState((prev) => !prev)}>
@@ -33,14 +39,28 @@ export default function Navbar() {
       <Sidebar state={sidebarState}>
         <SidebarLinks>
           <li><Link to="/destinations">Destinations</Link></li>
-          <li><Link to="/users">Users</Link></li>
-          <li><Link to="/trips">Trips</Link></li>
-          <li><Link to="/reviews">Reviews</Link></li>
+          {role === "user" && (
+            <>
+              <li><Link to="/reviews">Reviews</Link></li>
+              <li><Link to="/services">Services</Link></li>
+              <li><Link to="/trips">Trips</Link></li>
+            </>
+          )}
+          {role === "admin" && (
+            <>
+              <li><Link to="/users">Users</Link></li>
+              <li><Link to="/trips">Trips</Link></li>
+              <li><Link to="/reviews">Reviews</Link></li>
+            </>
+          )}
         </SidebarLinks>
       </Sidebar>
     </>
   );
 }
+
+// Styling components remain the same
+
 
 const StyledNav = styled.nav`
   display: flex;
