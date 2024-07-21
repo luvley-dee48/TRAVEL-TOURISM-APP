@@ -37,8 +37,8 @@ export default function Reviews() {
                         <Info>
                             <img src={avatarImage2} alt={review.user_name} />
                             <Details>
-                                <h4>{review.user_name}</h4>  {/* Display user name */}
-                                <span>{review.destination_title}</span>  {/* Display destination title */}
+                                <h4>{review.user_name}</h4>  {}
+                                <span>{review.destination_title}</span>  {}
                             </Details>
                         </Info>
                     </Review>

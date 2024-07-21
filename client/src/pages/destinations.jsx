@@ -12,8 +12,12 @@ export default function Destination() {
   const [formVisible, setFormVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredDestinations, setFilteredDestinations] = useState([]);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
+    const role = sessionStorage.getItem("role");
+    setUserRole(role);
+
     fetch("http://127.0.0.1:5555/destinations")
       .then(res => res.json())
       .then(data => {
@@ -140,12 +144,16 @@ export default function Destination() {
           />
           <SearchButton type="submit">Search</SearchButton>
         </SearchForm>
-        <ToggleButton onClick={() => setFormVisible(prev => !prev)}>
-          {formVisible ? "Hide Form" : "Add New Destination"}
-        </ToggleButton>
-        <ReturnButton onClick={handleReturnToDestinations}>Return to Destinations</ReturnButton>
+        {userRole === "admin" && (
+          <>
+            <ToggleButton onClick={() => setFormVisible(prev => !prev)}>
+              {formVisible ? "Hide Form" : "Add New Destination"}
+            </ToggleButton>
+            <ReturnButton onClick={handleReturnToDestinations}>Return to Destinations</ReturnButton>
+          </>
+        )}
       </div>
-      {formVisible && (
+      {formVisible && userRole === "admin" && (
         <AddDestinationForm onSubmit={handleSubmit}>
           <h2>{editDestination ? "Edit Destination" : "Add a New Destination"}</h2>
           <InputContainer>
@@ -170,9 +178,14 @@ export default function Destination() {
               <img src={destination.image_url} alt={destination.name} />
               <h2>{destination.name}</h2>
               <p>{destination.description}</p>
-              <Button onClick={() => handleDelete(destination.id)}>Delete</Button>
-              <Button onClick={() => startEditing(destination)}>Edit</Button>
-              <Button onClick={() => handleShare(destination)}>Share</Button>
+              {userRole === "admin" ? (
+                <>
+                  <Button onClick={() => handleDelete(destination.id)}>Delete</Button>
+                  <Button onClick={() => startEditing(destination)}>Edit</Button>
+                </>
+              ) : (
+                <Button onClick={() => handleShare(destination)}>Share</Button>
+              )}
             </DestinationCard>
           ))}
         </DestinationsGrid>
@@ -190,6 +203,8 @@ const Section = styled.section`
     position: relative;
   }
 `;
+
+
 
 const ToggleButton = styled.button`
   position: absolute;

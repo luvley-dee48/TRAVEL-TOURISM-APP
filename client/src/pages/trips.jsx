@@ -8,7 +8,7 @@ export default function Trips() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [destinations, setDestinations] = useState([]);
-  const userId = 1; // Assuming the user is logged in and we have their user ID
+  const userId = 1; 
 
   useEffect(() => {
     // Fetch destinations when component mounts

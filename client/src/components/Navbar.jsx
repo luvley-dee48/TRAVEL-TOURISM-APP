@@ -3,17 +3,24 @@ import styled from "styled-components";
 import logo from "../assets/logo.png";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { VscChromeClose } from "react-icons/vsc";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [navbarState, setNavbarState] = useState(false);
   const [sidebarState, setSidebarState] = useState(false);
   const [role, setRole] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const userRole = sessionStorage.getItem("role");
     setRole(userRole);
   }, []);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("role");
+    sessionStorage.removeItem("isAuthenticated"); // Clear any other session data
+    navigate("/login");
+  };
 
   return (
     <>
@@ -31,6 +38,7 @@ export default function Navbar() {
           <li><Link to="/">Home</Link></li>
           <li><Link to="/services">Services</Link></li>
           {role === "admin" && <li><Link to="/viewtrips">View Trips</Link></li>}
+          <li><LogoutButton onClick={handleLogout}>Logout</LogoutButton></li>
         </NavLinks>
       </StyledNav>
       <SidebarToggle onClick={() => setSidebarState((prev) => !prev)}>
@@ -59,8 +67,7 @@ export default function Navbar() {
   );
 }
 
-// Styling components remain the same
-
+// Styling components
 
 const StyledNav = styled.nav`
   display: flex;
@@ -123,6 +130,21 @@ const NavLinks = styled.ul`
 
   @media screen and (min-width: 280px) and (max-width: 1080px) {
     display: none;
+  }
+`;
+
+const LogoutButton = styled.button`
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-left: 1rem;
+
+  &:hover {
+    background-color: #bd2130;
   }
 `;
 
