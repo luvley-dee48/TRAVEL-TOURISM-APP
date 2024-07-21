@@ -19,7 +19,21 @@ Key Features:
 
 ### Installation Process of the front end
 
+
+**to add user as admin sign up as regular user**
+**Use Sqlite3 editor go to user and edit it the role to admin**
+
+meanwhile when getting started you can use the following 
+**user**
+username:dante
+password:saffo
+
+**admin**
+username:duc
+password:duc
+
 1. Navigate to your terminal.
+
 
 2. Create your travel tourism app using the following command
 
