@@ -12,16 +12,20 @@ db = SQLAlchemy(app, metadata=MetaData())
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key= True)
+    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80))
     email = db.Column(db.String(124), nullable=False, unique=True)
     password_hash = db.Column(db.String(128), nullable=False)
     profile_pic = db.Column(db.String(120))
+    role = db.Column(db.String(20), default='user')  # Added role column with default value 'user'
 
     planned_trips = db.relationship("PlannedTrip", backref="user", lazy=True)
     reviews = db.relationship("Review", backref="user", lazy=True)
     user_trips = db.relationship('TripsUsers', backref='user', lazy=True)
 
+    # Define constants for roles
+    ADMIN = 'admin'
+    USER = 'user'
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -29,11 +33,15 @@ class User(db.Model, SerializerMixin):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
     
-
+    def is_admin(self):
+        return self.role == self.ADMIN
 
     def __repr__(self):
-         return f'<User {self.username}>'
-    
+        return f'<User {self.username}>'
+
+# Add your other models, routes, and logic here
+
+
     
 class PlannedTrip(db.Model, SerializerMixin):
     __tablename__ = 'planned_trips'

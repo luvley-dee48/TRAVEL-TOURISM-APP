@@ -26,11 +26,13 @@ db.init_app(app)
 def login():
     username = request.json.get("username", None)
     password = request.json.get("password", None)
-    if username != "test" or password != "test":
+    user = User.query.filter_by(username=username).first()
+
+    if user is None or not user.verify_password(password):
         return jsonify({"msg": "Bad username or password"}), 401
 
-    access_token = create_access_token(identity=username)
-    return jsonify(access_token=access_token)
+    access_token = create_access_token(identity={"username": user.username, "role": user.role})
+    return jsonify(access_token=access_token, role=user.role)
 
 
 @app.route("/")
