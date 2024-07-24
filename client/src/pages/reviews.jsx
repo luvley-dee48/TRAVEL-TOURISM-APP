@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 import avatarImage2 from "../assets/avatarimage2.jpg";
 import Navbar from "../components/Navbar"; 
+
+
+
 export default function Reviews() {
+
     const [reviews, setReviews] = useState([]);
 
     useEffect(() => {
