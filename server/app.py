@@ -35,6 +35,7 @@ def login():
     return jsonify(access_token=access_token, role=user.role)
 
 
+
 @app.route("/")
 def index():
     return "<h1> The Tourism Tracker App </h1>"
